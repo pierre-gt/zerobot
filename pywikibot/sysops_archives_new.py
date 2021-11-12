@@ -69,7 +69,7 @@ class PutQueue:
 				page, text, comment = li
 				self.safe_put(page, text, comment)
 				total_put += 1
-		except Exception, myexception:
+		except Exception as myexception:
 			#e = sys.exc_info()
 			#pywikibot.output(e)
 
@@ -108,15 +108,15 @@ class TreatementBot:
 			'delai': {'classement': 12, 'archivage': 4*24, 'suppression': None} # En heures,
 			}
 
-			self.main_page = pywikibot.Page(self.site, u"Wikipédia:Requête aux administrateurs")
-			self.treated_page = pywikibot.Page(self.site, u"Wikipédia:Requête aux administrateurs/Requêtes traitées")
+			self.main_page = pywikibot.Page(self.site, "Wikipédia:Requête aux administrateurs")
+			self.treated_page = pywikibot.Page(self.site, "Wikipédia:Requête aux administrateurs/Requêtes traitées")
 
-			self.text_below_waiting_requests = u""
-			self.text_below_untreated_requests = u"\n{{Wikipédia:Requête aux administrateurs/Note:Requêtes à traiter}}"
+			self.text_below_waiting_requests = ""
+			self.text_below_untreated_requests = "\n{{Wikipédia:Requête aux administrateurs/Note:Requêtes à traiter}}"
 			self.template_prefix = "RA"
-			self.template_title = u"%s début" % self.template_prefix
-			self.template_end_title = u"%s fin" % self.template_prefix
-			self.archivePrefix = u""#u"Archives/"
+			self.template_title = "%s début" % self.template_prefix
+			self.template_end_title = "%s fin" % self.template_prefix
+			self.archivePrefix = ""#u"Archives/"
 
 		elif raccourci == 'dph':
 			self.dict = {
@@ -125,15 +125,15 @@ class TreatementBot:
 			'delai': {'classement': 12, 'archivage': None, 'suppression': 7*24} # En heures,
 			}
 
-			self.main_page = pywikibot.Page(self.site, u"Wikipédia:Demande de purge d'historique")
-			self.treated_page = pywikibot.Page(self.site, u"Wikipédia:Demande de purge d'historique/Requêtes traitées")
+			self.main_page = pywikibot.Page(self.site, "Wikipédia:Demande de purge d'historique")
+			self.treated_page = pywikibot.Page(self.site, "Wikipédia:Demande de purge d'historique/Requêtes traitées")
 
-			self.text_below_waiting_requests = u""
-			self.text_below_untreated_requests = u"\n{{Wikipédia:Requête aux administrateurs/Note:Requêtes à traiter}}"
+			self.text_below_waiting_requests = ""
+			self.text_below_untreated_requests = "\n{{Wikipédia:Requête aux administrateurs/Note:Requêtes à traiter}}"
 			self.template_prefix = "DPH"
-			self.template_title = u"%s début" % self.template_prefix
-			self.template_end_title = u"%s fin" % self.template_prefix
-			self.archivePrefix = u""#u"Archives/"
+			self.template_title = "%s début" % self.template_prefix
+			self.template_end_title = "%s fin" % self.template_prefix
+			self.archivePrefix = ""#u"Archives/"
 
 		elif raccourci == 'test':
 			self.dict = {
@@ -141,34 +141,34 @@ class TreatementBot:
 			'delai': {'classement': 12, 'archivage': 4*24 - 12, 'suppression': None} # En heures,
 			}
 
-			self.main_page = pywikibot.Page(self.site, u"User:ZéroBot/Wikipédia:Requête aux administrateurs")
-			self.treated_page = pywikibot.Page(self.site, u"User:ZéroBot/Wikipédia:Requête aux administrateurs/Requêtes traitées")
+			self.main_page = pywikibot.Page(self.site, "User:ZéroBot/Wikipédia:Requête aux administrateurs")
+			self.treated_page = pywikibot.Page(self.site, "User:ZéroBot/Wikipédia:Requête aux administrateurs/Requêtes traitées")
 
-			self.text_below_waiting_requests = u""
-			self.text_below_untreated_requests = u"\n{{Wikipédia:Requête aux administrateurs/Note:Requêtes à traiter}}"
+			self.text_below_waiting_requests = ""
+			self.text_below_untreated_requests = "\n{{Wikipédia:Requête aux administrateurs/Note:Requêtes à traiter}}"
 			self.template_prefix = "User:ZéroBot/RA"
-			self.template_title = u"User:ZéroBot/RA début"
-			self.template_end_title = u"RA fin"
-			self.archivePrefix = u""#u"Archives/"
+			self.template_title = "User:ZéroBot/RA début"
+			self.template_end_title = "RA fin"
+			self.archivePrefix = ""#u"Archives/"
 		###
 
 		self.les_mois = {
-		u"janvier": "01",
-		u"février": "02",
-		u"mars": "03",
-		u"avril": "04",
-		u"mai": "05",
-		u"juin": "06",
-		u"juillet": "07",
-		u"août": "08",
-		u"septembre": "09",
-		u"octobre": "10",
-		u"novembre": "11",
-		u"décembre": "12"
+		"janvier": "01",
+		"février": "02",
+		"mars": "03",
+		"avril": "04",
+		"mai": "05",
+		"juin": "06",
+		"juillet": "07",
+		"août": "08",
+		"septembre": "09",
+		"octobre": "10",
+		"novembre": "11",
+		"décembre": "12"
 		}
 
-		self.match_date = re.compile(u"(?P<day>[0-9]+) *(?P<month>[^ ]+) *(?P<year>20[0-9]{2}) *à *(?P<hours>[0-9]{2}):(?P<minutes>[0-9]{2})")
-		self.match_titre_requete = re.compile(u"(\n|^)== *([^=].+[^=]) *==")
+		self.match_date = re.compile("(?P<day>[0-9]+) *(?P<month>[^ ]+) *(?P<year>20[0-9]{2}) *à *(?P<hours>[0-9]{2}):(?P<minutes>[0-9]{2})")
+		self.match_titre_requete = re.compile("(\n|^)== *([^=].+[^=]) *==")
 
 	def analyse_section(self, section, template_title = None):
 		"""
@@ -198,12 +198,12 @@ class TreatementBot:
 			# On extrait les paramètres utiles (statut et date)
 				try:
 					date = template[1]['date']
-					if template[1][u'traitée'].strip() == 'oui':
+					if template[1]['traitée'].strip() == 'oui':
 						traitee = True
-					elif template[1][u'traitée'].strip() in ('attente', 'encours'):
+					elif template[1]['traitée'].strip() in ('attente', 'encours'):
 						wait = True
 				except:
-					pywikibot.output(u"Erreur ! Les paramètres 'date' et 'traitée' ne semblent pas exister !")
+					pywikibot.output("Erreur ! Les paramètres 'date' et 'traitée' ne semblent pas exister !")
 					return None
 				# On arrête d'analyser les modèles, étant donné qu'on a trouvé
 				# celui qui nous intéresse.
@@ -213,7 +213,7 @@ class TreatementBot:
 		if found:
 			return {'date': date, 'traitée': traitee, 'attente': wait}
 		else:
-			pywikibot.output(u"Aucun modèle de début trouvé !")
+			pywikibot.output("Aucun modèle de début trouvé !")
 			return None
 
 	def classement(self):
@@ -246,31 +246,31 @@ class TreatementBot:
 		Aucun paramètre n'est supporté pour cette fonction.
 		"""
 		self.text = self.main_page.get()
-		self.text = self.text.replace(self.text_below_waiting_requests, u'')
-		self.text = self.text.replace(self.text_below_untreated_requests, u'')
+		self.text = self.text.replace(self.text_below_waiting_requests, '')
+		self.text = self.text.replace(self.text_below_untreated_requests, '')
 
 		#print self.text_below_waiting_requests
 		#print self.text_below_untreated_requests
 		#print self.text
 		#print re.search(re.compile(u"= *Requêtes en cours d'examen *= *\n+(.*)\n*= *Requêtes à traiter *=", re.S), self.text)
 
-		text_requetes_en_attente = re.search(re.compile(u"= *Requêtes en cours d'examen *= *\n+(.*)\n*= *Requêtes à traiter *=", re.S), self.text).group(1)
+		text_requetes_en_attente = re.search(re.compile("= *Requêtes en cours d'examen *= *\n+(.*)\n*= *Requêtes à traiter *=", re.S), self.text).group(1)
 		pywikibot.output('text_requetes_en_attente')
 		pywikibot.output(text_requetes_en_attente)
 
 		pywikibot.output('--------------------------------')
 
 		self.text = self.text.replace(text_requetes_en_attente, '')
-		self.text = re.sub(u"(= Requêtes à traiter =\n*)\n", u"\\1\n%s" % text_requetes_en_attente, self.text)
+		self.text = re.sub("(= Requêtes à traiter =\n*)\n", "\\1\n%s" % text_requetes_en_attente, self.text)
 
 		#self.text = re.sub(u"(= *Requêtes à traiter *=)", u"\\1%s" % text_requetes_en_attente, self.text)
-		text_requetes_a_traiter = re.search(u"= *Requêtes à traiter *=", self.text).group(0)
+		text_requetes_a_traiter = re.search("= *Requêtes à traiter *=", self.text).group(0)
 
 		titres = complements.extract_titles(self.text, beginning = text_requetes_a_traiter, match_title = self.match_titre_requete)
 		sections = complements.extract_sections(self.text, titres)
 
-		self.text = re.sub(u"(= *Requêtes en cours d'examen *= *)", u"\\1%s" % self.text_below_waiting_requests, self.text)
-		self.text = re.sub(u"(= *Requêtes à traiter *= *)", u"\\1%s" % self.text_below_untreated_requests, self.text)
+		self.text = re.sub("(= *Requêtes en cours d'examen *= *)", "\\1%s" % self.text_below_waiting_requests, self.text)
+		self.text = re.sub("(= *Requêtes à traiter *= *)", "\\1%s" % self.text_below_untreated_requests, self.text)
 
 		pywikibot.output(self.text)
 
@@ -295,7 +295,7 @@ class TreatementBot:
 
 			analyse = self.analyse_section(sections[numero_section])
 			if analyse == None: # Une erreur a eu lieu
-				print 'error: an unknown error occurred!'
+				print('error: an unknown error occurred!')
 				continue
 			date = analyse['date']
 			traitee = analyse['traitée']
@@ -312,7 +312,7 @@ class TreatementBot:
 				# Si la requête n'a pas de date et n'est pas en attente,
 				# on la laisse  l'endroit où elle est, pour éviter de
 				# modifier l'ordre d'apparition des requêtes.
-				pywikibot.output(u'aucune date renseignée')
+				pywikibot.output('aucune date renseignée')
 				continue
 
 			if attente:
@@ -336,11 +336,11 @@ class TreatementBot:
 				# On préfèrera utiliser exclusivement des chiffres pour éviter
 				# des problèmes liés aux accents sur le nom de certains mois,
 				# tels février, décembre et août.
-				text_date = u"%s %s %s %s:%s" % (date.group('day'), self.les_mois[date.group('month')], date.group('year'), date.group('hours'), date.group('minutes'))
-				date = datetime.datetime.strptime(text_date, u"%d %m %Y %H:%M")
+				text_date = "%s %s %s %s:%s" % (date.group('day'), self.les_mois[date.group('month')], date.group('year'), date.group('hours'), date.group('minutes'))
+				date = datetime.datetime.strptime(text_date, "%d %m %Y %H:%M")
 				pywikibot.output(date)
 			except:
-				pywikibot.output(u'erreur: problème avec la date')
+				pywikibot.output('erreur: problème avec la date')
 				continue
 
 			now = datetime.datetime.now()
@@ -414,17 +414,17 @@ class TreatementBot:
 
 		# Mise à jour
 		#self.text = re.sub(u"(\n+= *[rR]equêtes *à *traiter *=)", u"%s\\1" % text_waiting, self.text)
-		self.text = re.sub(u"\n+(= *[rR]equêtes *à *traiter *= *)", u"\n%s\\1" % text_waiting, self.text)
+		self.text = re.sub("\n+(= *[rR]equêtes *à *traiter *= *)", "\n%s\\1" % text_waiting, self.text)
 
 		#page = pywikibot.Page(self.site, u"User:ZéroBot/Wikipédia:Requête aux administrateurs")
-		comment = u"Classement des requêtes (%i requête(s) traitée(s), %i requête(s) en attente)" % (len(dict_requetes_par_statut['traitée']), len(dict_requetes_par_statut['attente']))
+		comment = "Classement des requêtes (%i requête(s) traitée(s), %i requête(s) en attente)" % (len(dict_requetes_par_statut['traitée']), len(dict_requetes_par_statut['attente']))
 		pywikibot.output(self.text)
 		pywikibot.showDiff(self.main_page.get(), self.text)
 		self.put_queue.add(self.main_page, self.text, comment)
 		pywikibot.output(comment)
 
 		#page = pywikibot.Page(self.site, u"User:ZéroBot/Wikipédia:Requête aux administrateurs/Requêtes traitées")
-		comment = u"Classement des requêtes : %i requête(s) traitée(s)" % len(dict_requetes_par_statut['traitée'])
+		comment = "Classement des requêtes : %i requête(s) traitée(s)" % len(dict_requetes_par_statut['traitée'])
 		self.put_queue.add(self.treated_page, text_treated, comment)
 		pywikibot.output(comment)
 
@@ -477,7 +477,7 @@ class TreatementBot:
 			date = analyse['date']
 
 			if not date:
-				pywikibot.output(u'erreur : pas de date !')
+				pywikibot.output('erreur : pas de date !')
 				continue
 
 			try:
@@ -492,11 +492,11 @@ class TreatementBot:
 				# On préfèrera utiliser exclusivement des chiffres pour éviter
 				# des problèmes liés aux accents sur le nom de certains mois,
 				# tels février, décembre et août.
-				text_date = u"%s %s %s %s:%s" % (date.group('day'), self.les_mois[date.group('month')], date.group('year'), date.group('hours'), date.group('minutes'))
-				date = datetime.datetime.strptime(text_date, u"%d %m %Y %H:%M")
+				text_date = "%s %s %s %s:%s" % (date.group('day'), self.les_mois[date.group('month')], date.group('year'), date.group('hours'), date.group('minutes'))
+				date = datetime.datetime.strptime(text_date, "%d %m %Y %H:%M")
 				pywikibot.output(date)
 			except:
-				pywikibot.output(u'erreur: problème avec la date')
+				pywikibot.output('erreur: problème avec la date')
 				continue
 
 
@@ -508,36 +508,36 @@ class TreatementBot:
 			if self.dict['archiver']:
 			# Si l'archivage des requêtes est activé.
 				if self.dict['delai']['archivage'] <= ((now-date).seconds/3600 + (now-date).days*24):
-					pywikibot.output(u'=> archivage')
+					pywikibot.output('=> archivage')
 
 					year = date.isocalendar()[0]
 					weekNumber = date.isocalendar()[1]
 
-					if not requests_to_archive.has_key(year):
+					if year not in requests_to_archive:
 						requests_to_archive[year] = {}
 
-					if not requests_to_archive[year].has_key(weekNumber):
+					if weekNumber not in requests_to_archive[year]:
 						requests_to_archive[year][weekNumber] = []
 
-					if not texts_requests_to_archive.has_key(year):
+					if year not in texts_requests_to_archive:
 						texts_requests_to_archive[year] = {}
 
-					if not texts_requests_to_archive[year].has_key(weekNumber):
-						texts_requests_to_archive[year][weekNumber] = u""
+					if weekNumber not in texts_requests_to_archive[year]:
+						texts_requests_to_archive[year][weekNumber] = ""
 
 					requests_to_archive[year][weekNumber].append(sections[numero_section])
 					texts_requests_to_archive[year][weekNumber] += sections[numero_section]
 				else:
-					pywikibot.output(u'=> pas d\'archivage')
+					pywikibot.output('=> pas d\'archivage')
 
 			elif self.dict['supprimer']:
 			# Sinon, si leur suppression est activée.
 				if self.dict['delai']['suppression'] <= ((now-date).seconds/3600 + (now-date).days*24):
-					pywikibot.output(u'=> suppression')
+					pywikibot.output('=> suppression')
 					text = text.replace(sections[numero_section], '')
 					requests_to_delete.append(sections[numero_section])
 				else:
-					pywikibot.output(u'=> pas de suppression')
+					pywikibot.output('=> pas de suppression')
 
 		# Fin de la boucle traitant les sections au cas par cas.
 		#
@@ -560,9 +560,9 @@ class TreatementBot:
 					pywikibot.output('_________ week_number : %i _________' % week_number)
 
 					if week_number == 52: # Nouvelle année
-						archive_page = pywikibot.Page(self.site, u"%s/%s%i/Semaine %i" % (self.main_page.title(asLink = False), self.archivePrefix, year, week_number))
+						archive_page = pywikibot.Page(self.site, "%s/%s%i/Semaine %i" % (self.main_page.title(asLink = False), self.archivePrefix, year, week_number))
 					else:
-						archive_page = pywikibot.Page(self.site, u"%s/%s%i/Semaine %i" % (self.main_page.title(asLink = False), self.archivePrefix, year, week_number))
+						archive_page = pywikibot.Page(self.site, "%s/%s%i/Semaine %i" % (self.main_page.title(asLink = False), self.archivePrefix, year, week_number))
 
 					if archive_page.exists():
 						new_text = archive_page.get()
@@ -574,22 +574,22 @@ class TreatementBot:
 
 					# Mise à jour de la page de classement en cours de traitement
 					# ainsi que de la apge d'archive
-					comment = (u"Archivage de %i requêtes" % len(requests_to_archive[year][week_number]))
+					comment = ("Archivage de %i requêtes" % len(requests_to_archive[year][week_number]))
 					try:
 						#pywikibot.showDiff(self.treated_page.get(), text)
 						#pywikibot.output('******************************************************')
 						#if archive_page.exists():
 							#pywikibot.showDiff(archive_page.get(), new_text)
-						self.put_queue.add(self.treated_page, text, comment = (comment + u" vers %s" % archive_page.title(asLink = True)))
+						self.put_queue.add(self.treated_page, text, comment = (comment + " vers %s" % archive_page.title(asLink = True)))
 
 						self.put_queue.add(archive_page, new_text, comment = comment)
-					except Exception, myexception:
+					except Exception as myexception:
 						pywikibot.output("erreur type 2 : %s %s" % (type(myexception), myexception.args))
 						#print u'%s %s' % (type(myexception), myexception.args)
 
 
 		elif self.dict['supprimer']:
-			comment = (u"Suppression de %i requêtes" % len(requests_to_delete))
+			comment = ("Suppression de %i requêtes" % len(requests_to_delete))
 			self.put_queue.add(self.treated_page, text, comment = comment)
 
 	def traitement(self):
@@ -615,24 +615,24 @@ def main():
 
 	for raccourci in liste_raccourcis:
 		try:
-			pywikibot.output(u"""
+			pywikibot.output("""
 	************************************************
 	|              TRAITEMENT DE %s              |
 	************************************************""" %  raccourci)
 			bot = TreatementBot(raccourci = raccourci)
 			bot.traitement()
-			pywikibot.output(u"""
+			pywikibot.output("""
 	************************************************
 	|          FIN DU TRAITEMENT DE %s            |
 	************************************************""" %  raccourci)
-		except Exception, myexception:
+		except Exception as myexception:
 			_errorhandler.handle(myexception, level='warning', addtags={'page': raccourci})
 
 
 if __name__ == '__main__':
     try:
         main()
-    except Exception, myexception:
+    except Exception as myexception:
         _errorhandler.handle(myexception)
         raise
     finally:
