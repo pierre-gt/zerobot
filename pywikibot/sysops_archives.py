@@ -51,12 +51,12 @@ class PutQueue:
 
 	def safe_put(self, page, text, comment):
 		try:
-			page.put(text, comment = comment)
+			page.put(text, summary = comment)
 		except pywikibot.SpamblacklistError as errorBlacklist:
 			for url in errorBlacklist.url.split(', '):
 				text.replace(url, "<nowiki>%s</nowiki>" % url)
 			self.site.unlock_page(page) # Strange bug, page locked after the error
-			page.put(text, comment = comment)
+			page.put(text, summary = comment)
 
 	def put_all(self):
 		total_put = 0
@@ -619,7 +619,7 @@ class TreatementBot:
 				archive_page = None
 				while True:
 					previous_archive_page = archive_page
-					archive_page = pywikibot.Page(self.site, self.main_page.title(asLink = False) + "/%s%i" % (self.archivePrefix, archiveNumber))
+					archive_page = pywikibot.Page(self.site, self.main_page.title(as_link = False) + "/%s%i" % (self.archivePrefix, archiveNumber))
 					if not archive_page.exists():
 						break
 					archiveNumber += 1

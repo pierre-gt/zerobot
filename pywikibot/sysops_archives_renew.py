@@ -41,12 +41,12 @@ class PutQueue:
 
 	def safe_put(self, page, text, comment):
 		try:
-			page.put(text, comment = comment)
+			page.put(text, summary = comment)
 		except pywikibot.SpamblacklistError as errorBlacklist:
 			for url in errorBlacklist.url.split(', '):
 				text.replace(url, "<nowiki>%s</nowiki>" % url)
 			self.site.unlock_page(page) # Strange bug, page locked after the error
-			page.put(text, comment = comment)
+			page.put(text, summary = comment)
 
 	def put_all(self):
 		total_put = 0
@@ -527,7 +527,7 @@ class TreatementBot:
 				archive_page = None
 				while True:
 					previous_archive_page = archive_page
-					archive_page = pywikibot.Page(self.site, self.main_page.title(asLink = False) + "/%s%i" % (self.archivePrefix, archiveNumber))
+					archive_page = pywikibot.Page(self.site, self.main_page.title(as_link = False) + "/%s%i" % (self.archivePrefix, archiveNumber))
 					if not archive_page.exists():
 						break
 					archiveNumber += 1
@@ -597,14 +597,14 @@ class TreatementBot:
 						# requête de la page d'archives.
 
 						archiveNumber += 1
-						archive_page = pywikibot.Page(self.site, self.main_page.title(asLink = False) + "/%s%i" % (self.archivePrefix, archiveNumber))
+						archive_page = pywikibot.Page(self.site, self.main_page.title(as_link = False) + "/%s%i" % (self.archivePrefix, archiveNumber))
 						new_text = text_to_archive
 						pywikibot.output("Plus de 250 requêtes archivées -> création d'une nouvelle page d'archive (n°%i)" % archiveNumber)
 
 						# Mise à jour de la page d'archives principale
 						main_archive_page = pywikibot.Page(self.site, self.main_page.title() + "/Archives")
 						text_temp = main_archive_page.get()
-						text_temp = re.sub("(\# *\[\[%s\]\]) *" % old_archive_page.title(asLink = False), "\\1 (jusqu'au %s)\n# %s" % (last_date, archive_page.title(asLink = True)), text_temp)
+						text_temp = re.sub("(\# *\[\[%s\]\]) *" % old_archive_page.title(as_link = False), "\\1 (jusqu'au %s)\n# %s" % (last_date, archive_page.title(as_link = True)), text_temp)
 						self.put_queue.add(main_archive_page, text_temp, comment = "Création d'une nouvelle page d'archives")
 
 					else:
@@ -623,7 +623,7 @@ class TreatementBot:
 				comment = ("Archivage de %i requêtes" % len(requests_to_archive))
 				try:
 					pywikibot.output('******************************************************')
-					self.put_queue.add(page_en_cours, text, comment = (comment + " vers %s" % archive_page.title(asLink = True)))
+					self.put_queue.add(page_en_cours, text, comment = (comment + " vers %s" % archive_page.title(as_link = True)))
 					self.put_queue.add(archive_page, new_text, comment = comment)
 
 					# do it now, otherwise conflicts (eg. if accepted and refused

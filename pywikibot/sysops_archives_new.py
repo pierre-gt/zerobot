@@ -55,12 +55,12 @@ class PutQueue:
 
 	def safe_put(self, page, text, comment):
 		try:
-			page.put(text, comment = comment)
+			page.put(text, summary = comment)
 		except pywikibot.SpamblacklistError as errorBlacklist:
 			for url in errorBlacklist.url.split(', '):
 				text.replace(url, "<nowiki>%s</nowiki>" % url)
 			self.site.unlock_page(page) # Strange bug, page locked after the error
-			page.put(text, comment = comment)
+			page.put(text, summary = comment)
 
 	def put_all(self):
 		total_put = 0
@@ -560,9 +560,9 @@ class TreatementBot:
 					pywikibot.output('_________ week_number : %i _________' % week_number)
 
 					if week_number == 52: # Nouvelle année
-						archive_page = pywikibot.Page(self.site, "%s/%s%i/Semaine %i" % (self.main_page.title(asLink = False), self.archivePrefix, year, week_number))
+						archive_page = pywikibot.Page(self.site, "%s/%s%i/Semaine %i" % (self.main_page.title(as_link = False), self.archivePrefix, year, week_number))
 					else:
-						archive_page = pywikibot.Page(self.site, "%s/%s%i/Semaine %i" % (self.main_page.title(asLink = False), self.archivePrefix, year, week_number))
+						archive_page = pywikibot.Page(self.site, "%s/%s%i/Semaine %i" % (self.main_page.title(as_link = False), self.archivePrefix, year, week_number))
 
 					if archive_page.exists():
 						new_text = archive_page.get()
@@ -580,7 +580,7 @@ class TreatementBot:
 						#pywikibot.output('******************************************************')
 						#if archive_page.exists():
 							#pywikibot.showDiff(archive_page.get(), new_text)
-						self.put_queue.add(self.treated_page, text, comment = (comment + " vers %s" % archive_page.title(asLink = True)))
+						self.put_queue.add(self.treated_page, text, comment = (comment + " vers %s" % archive_page.title(as_link = True)))
 
 						self.put_queue.add(archive_page, new_text, comment = comment)
 					except Exception as myexception:
