@@ -28,8 +28,8 @@ import codecs, re
 def pageIsListed(page, listedlist, templateList):
     found = False
     if config.verbose_output:
-        pywikibot.output(u'Traitement de %s' % page.title())
-    title=re.sub(u'_', u' ', page.title())
+        pywikibot.output('Traitement de %s' % page.title())
+    title=re.sub('_', ' ', page.title())
     if title in listedlist:
         found = True
 
@@ -37,13 +37,13 @@ def pageIsListed(page, listedlist, templateList):
     if not found:
         lowtitle=title[0].lower()+title[1:]
         if config.verbose_output:
-            pywikibot.output(u'Not found, trying low title %s' % lowtitle)
+            pywikibot.output('Not found, trying low title %s' % lowtitle)
         if lowtitle in listedlist:
             found=True
         else:
             uptitle=title[0].upper()+title[1:]
             if config.verbose_output:
-                pywikibot.output(u'Not found, trying up title %s' % uptitle)
+                pywikibot.output('Not found, trying up title %s' % uptitle)
             if uptitle in listedlist:
                 found=True
 
@@ -53,22 +53,22 @@ def pageIsListed(page, listedlist, templateList):
         for tuple in pagetemplates:
             if tuple[0].title() in templateList and len(tuple[1])>0:
                 for arg in tuple[1]:
-                    alttitle=re.sub(u'^ +', u'',re.sub(r' +$', u'', re.sub(u'cat=', u'', re.sub(u'Discuter:', u'', re.sub(u'Discussion', u'', re.sub(u'Discussion:', u'', arg))))))
+                    alttitle=re.sub('^ +', '',re.sub(r' +$', '', re.sub('cat=', '', re.sub('Discuter:', '', re.sub('Discussion', '', re.sub('Discussion:', '', arg))))))
                     if config.verbose_output:
-                        pywikibot.output(u'Not found, trying alt title %s' % alttitle)
+                        pywikibot.output('Not found, trying alt title %s' % alttitle)
                     if alttitle in listedlist:
                         found=True
                         break
                     else:
                       lowtitle=alttitle[0].lower()+alttitle[1:]
                       if config.verbose_output:
-                          pywikibot.output(u'Not found, trying low alttitle %s' % lowtitle)
+                          pywikibot.output('Not found, trying low alttitle %s' % lowtitle)
                       if lowtitle in listedlist:
                           found=True
                       else:
                           uptitle=alttitle[0].upper()+alttitle[1:]
                           if config.verbose_output:
-                              pywikibot.output(u'Not found, trying up alttitle %s' % uptitle)
+                              pywikibot.output('Not found, trying up alttitle %s' % uptitle)
                           if uptitle in listedlist:
                               found=True
 
@@ -77,7 +77,7 @@ def pageIsListed(page, listedlist, templateList):
         reflist=page.getReferences(follow_redirects=False, withTemplateInclusion=False, onlyTemplateInclusion=False, redirectsOnly=True)
         for refpage in reflist:
             if config.verbose_output:
-                pywikibot.output(u'Not found, trying reference %s' % refpage.title())
+                pywikibot.output('Not found, trying reference %s' % refpage.title())
             if refpage.title(withNamespace=False) in listedlist:
                 found=True
                 break
@@ -104,7 +104,7 @@ def main():
             templates = True
             afdlist = True
         else:
-            pywikibot.output(u'Syntax: afd.py [-templates|-afdlist|-all]')
+            pywikibot.output('Syntax: afd.py [-templates|-afdlist|-all]')
             exit()
 
     if config.verbose_output:
@@ -125,7 +125,7 @@ def main():
 
     if templates:
         templateList=list()
-        templatepage=pywikibot.Page(site, u'Modèle:Admissibilité à vérifier')
+        templatepage=pywikibot.Page(site, 'Modèle:Admissibilité à vérifier')
         templateList.append(templatepage.title(withNamespace=False))
         reflist=templatepage.getReferences(follow_redirects=False, withTemplateInclusion=False, onlyTemplateInclusion=False, redirectsOnly=True)
         for page in reflist:
@@ -136,7 +136,7 @@ def main():
             templateKeys[templateName] = None
 
 
-    catname=u'Catégorie:Page proposée à la suppression'
+    catname='Catégorie:Page proposée à la suppression'
     categ=pywikibot.Category(site, catname)
     subcats=list(categ.subcategories())
     fullartlist=categ.articles()
@@ -151,17 +151,17 @@ def main():
 
         pagesToProcess=pagegenerators.PreloadingGenerator(gen, 60)
 
-        summary=u'Admissibilité en cours de discussion : débat de suppression en cours'
+        summary='Admissibilité en cours de discussion : débat de suppression en cours'
 
         bot = template.TemplateRobot(generator=pagesToProcess, templates=templateKeys, subst=False, remove=True, editSummary=summary, acceptAll=True, addedCat=None)
         bot.run()
 
     if afdlist:
-        afdpage=pywikibot.Page(site, u'Wikipédia:Pages à supprimer')
+        afdpage=pywikibot.Page(site, 'Wikipédia:Pages à supprimer')
         if len(config.debug_log):
-            projectpage=pywikibot.Page(site, u'User:ZéroBot/Projet:Maintenance/Pages à supprimer')
+            projectpage=pywikibot.Page(site, 'User:ZéroBot/Projet:Maintenance/Pages à supprimer')
         else:
-            projectpage=pywikibot.Page(site, u'Projet:Maintenance/Pages à supprimer')
+            projectpage=pywikibot.Page(site, 'Projet:Maintenance/Pages à supprimer')
 
         # Workaround
         # TO FIX
@@ -174,22 +174,22 @@ def main():
         sections_list = re.split('==.+==', afdpage.get())
         for section in sections_list:
             alltemplates_section = textlib.extract_templates_and_params(section)
-            print 'alltemplates_section'
-            print alltemplates_section
+            print('alltemplates_section')
+            print(alltemplates_section)
 
             for tuple in alltemplates_section:
                 #pywikibot.output(u'Template %s' % tuple[0])
-                if tuple[0].upper() == u'L':
+                if tuple[0].upper() == 'L':
    #             if tuple[0].title()==u'Modèle:L':
    #                 text=re.sub(u'_', u' ', re.sub(r' +$', u'', tuple[1][0]))
-                    text=re.sub(u'_', u' ', re.sub(r' +$', u'', tuple[1]['1']))
+                    text=re.sub('_', ' ', re.sub(r' +$', '', tuple[1]['1']))
                     listedlist.append(text)
                     if config.verbose_output:
-                        pywikibot.output(u'Added %s' % text)
+                        pywikibot.output('Added %s' % text)
 
-        print listedlist
+        print(listedlist)
         templateList=list()
-        templatepage=pywikibot.Page(site, u'Modèle:Suppression')
+        templatepage=pywikibot.Page(site, 'Modèle:Suppression')
         templateList.append(templatepage.title())
         reflist=templatepage.getReferences(follow_redirects=False, withTemplateInclusion=False, onlyTemplateInclusion=False, redirectsOnly=True)
         for page in reflist:
@@ -200,32 +200,32 @@ def main():
             found = pageIsListed(page, listedlist, templateList)
             if not found:
                talkpage=page.toggleTalkPage()
-               afdpage=pywikibot.Page(site, u'%s/Suppression' % talkpage.title())
+               afdpage=pywikibot.Page(site, '%s/Suppression' % talkpage.title())
                if afdpage.isRedirectPage():
                    targetpage=afdpage.getRedirectTarget()
                    if targetpage.namespace()==0:
-                       pagetocheck=pywikibot.Page(site, re.sub(u'/Suppression', u'', targetpage.title(withNamespace=False)))
+                       pagetocheck=pywikibot.Page(site, re.sub('/Suppression', '', targetpage.title(withNamespace=False)))
                    else:
-                       pagetocheck=pywikibot.Page(site, re.sub(u'/Suppression', u'', targetpage.title()))
+                       pagetocheck=pywikibot.Page(site, re.sub('/Suppression', '', targetpage.title()))
                        pagetocheck=pagetocheck.toggleTalkPage()
                    found = pageIsListed(pagetocheck, listedlist, templateList)
             if not found:
                 notlisted.append(page.title())
-                pywikibot.output(u'Not listed: %s' % page.title())
+                pywikibot.output('Not listed: %s' % page.title())
 
-        newtext=u'=== Catégorisé mais pas sur [[Wikipédia:Pages à supprimer|PàS]] ===\n'
+        newtext='=== Catégorisé mais pas sur [[Wikipédia:Pages à supprimer|PàS]] ===\n'
         for title in notlisted:
             page=pywikibot.Page(site, title)
             talkpage=page.toggleTalkPage()
-            newtext+=u'# [[:%s]]  ([[%s/Suppression|sous-page]])\n' % (title, talkpage.title())
+            newtext+='# [[:%s]]  ([[%s/Suppression|sous-page]])\n' % (title, talkpage.title())
 
         if not len(config.debug_log):
-            projectpage.put(newtext, u'Mise à jour de la liste de maintenance')
+            projectpage.put(newtext, 'Mise à jour de la liste de maintenance')
 
 if __name__ == '__main__':
     try:
         main()
-    except Exception, myexception:
+    except Exception as myexception:
         _errorhandler.handle(myexception)
         raise
     finally:
