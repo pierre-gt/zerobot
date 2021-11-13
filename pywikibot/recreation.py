@@ -32,7 +32,7 @@ avec recreation.timestamp.txt un fichier contenant une seule ligne au format
 qui est la dernière date à laquelle le bot a été lancée
 
 """
-from __future__ import unicode_literals, print_function
+
 from datetime import date, timedelta, datetime
 import re
 import argparse
@@ -229,10 +229,10 @@ def process(day):
                 page_pas = page_pas.getRedirectTarget()
             if page_pas.exists() and re.search(r'article supprimé', page_pas.get(), re.I):
                 if re.search(r'\{\{ ?article supprimé[^\}]*\d{1,2} (\S* \d{4}) à', page_pas.get(), re.I):
-                    date = u' de %s' % re.search(r'\{\{ ?article supprimé[^\}]*\d{1,2} (\S* \d{4}) à', page_pas.get(), re.I).group(1)
-                comment.append(u'[[%s]] (malgré [[%s|PàS]]%s)' % (page["title"], page_pas.title(), date))
+                    date = ' de %s' % re.search(r'\{\{ ?article supprimé[^\}]*\d{1,2} (\S* \d{4}) à', page_pas.get(), re.I).group(1)
+                comment.append('[[%s]] (malgré [[%s|PàS]]%s)' % (page["title"], page_pas.title(), date))
                 gras = "'''"
-            r = (u"* {g}{{{{a-court|{title}}}}} <small>([[{pas}|PàS]])</small> supprimé le {date} puis recréé par {{{{u|{user}}}}}{g} \n"
+            r = ("* {g}{{{{a-court|{title}}}}} <small>([[{pas}|PàS]])</small> supprimé le {date} puis recréé par {{{{u|{user}}}}}{g} \n"
                             .format(title = wiki_param(page["title"]),
                             pas =  page_pas.title(),
                             user = wiki_param(page["user"]),
@@ -242,12 +242,12 @@ def process(day):
                 print(r)
             result += r
     
-    page = Page(Site(), params.prefix + u'/' + format_date(day, skip_day=True))
+    page = Page(Site(), params.prefix + '/' + format_date(day, skip_day=True))
                                                                                                
     try:
         result = page.get() + result
     except NoPage:
-        result = u'{{mise à jour bot|Zérobot}}' + result
+        result = '{{mise à jour bot|Zérobot}}' + result
     if comment: comment.insert(0, '')
     page.put(result,comment="Journal des recréations ({day}) ".format(day=format_date(day)) + ' - '.join(comment))
 
@@ -264,8 +264,8 @@ if __name__ == "__main__" :
     if sys.version_info < (3, 0):
         params.prefix = params.prefix.decode('utf-8')#params.prefix.decode(locale.getpreferredencoding())
     if "'" in params.prefix:
-        input("Attention ! Le paramètre \"préfix\" contient des ' ce qui n'est pas nécéssaire. Continuer ?")
-    Site().forceLogin()    
+        eval(input("Attention ! Le paramètre \"préfix\" contient des ' ce qui n'est pas nécéssaire. Continuer ?"))
+#    Site().forceLogin()    
     end = datetime.today() - ONE_DAY
     with open("recreation.timestamp.txt") as ts:
         start = datetime.strptime(ts.read().strip(),"%Y-%m-%d")+ONE_DAY
