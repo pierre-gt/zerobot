@@ -78,7 +78,7 @@ def pageIsListed(page, listedlist, templateList):
         for refpage in reflist:
             if config.verbose_output:
                 pywikibot.output('Not found, trying reference %s' % refpage.title())
-            if refpage.title(withNamespace=False) in listedlist:
+            if refpage.title(with_ns=False) in listedlist:
                 found=True
                 break
 
@@ -92,7 +92,7 @@ def main():
     templates=False
     afdlist=False
 
-    for arg in pywikibot.handleArgs():
+    for arg in pywikibot.handle_args():
         # -templates check afd articles whose admissibility is listed to be checked and removes the template
         if arg.startswith('-templates'):
             templates = True
@@ -114,7 +114,7 @@ def main():
         pywikibot.output("Running in DEBUG mode")
 
     # Get category
-    site = pywikibot.getSite()
+    site = pywikibot.Site()
 
     # Open logfile
     commandLogFilename = config.datafilepath('logs', 'afd.log')
@@ -191,7 +191,7 @@ def main():
         templateList=list()
         templatepage=pywikibot.Page(site, 'Modèle:Suppression')
         templateList.append(templatepage.title())
-        reflist=templatepage.getReferences(follow_redirects=False, withTemplateInclusion=False, onlyTemplateInclusion=False, redirectsOnly=True)
+        reflist=templatepage.getReferences(follow_redirects=False, with_template_inclusion=False, only_template_inclusion=False, filter_redirects=True)
         for page in reflist:
             templateList.append(page.title())
 
