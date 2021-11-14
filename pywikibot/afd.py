@@ -74,7 +74,7 @@ def pageIsListed(page, listedlist, templateList):
 
     # Not found, trying redirections
     if not found:
-        reflist=page.getReferences(follow_redirects=False, withTemplateInclusion=False, onlyTemplateInclusion=False, redirectsOnly=True)
+        reflist=page.getReferences(follow_redirects=False, with_template_inclusion=False, only_template_inclusion=False, filter_redirects=True)
         for refpage in reflist:
             if config.verbose_output:
                 pywikibot.output('Not found, trying reference %s' % refpage.title())
@@ -127,7 +127,7 @@ def main():
         templateList=list()
         templatepage=pywikibot.Page(site, 'Modèle:Admissibilité à vérifier')
         templateList.append(templatepage.title(withNamespace=False))
-        reflist=templatepage.getReferences(follow_redirects=False, withTemplateInclusion=False, onlyTemplateInclusion=False, redirectsOnly=True)
+        reflist=templatepage.getReferences(follow_redirects=False, with_template_inclusion=False, only_template_inclusion=False, filter_redirects=True)
         for page in reflist:
             templateList.append(page.title(withNamespace=False))
 
