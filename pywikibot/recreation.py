@@ -41,7 +41,7 @@ import locale
 import pywikibot
 
 from pywikibot import Page,Site
-from pywikibot.exceptions import NoPage
+from pywikibot.exceptions import NoPageError
 from pywikibot.data import api
 
 
@@ -246,10 +246,10 @@ def process(day):
                                                                                                
     try:
         result = page.get() + result
-    except NoPage:
+    except NoPageError:
         result = '{{mise à jour bot|Zérobot}}' + result
     if comment: comment.insert(0, '')
-    page.put(result,comment="Journal des recréations ({day}) ".format(day=format_date(day)) + ' - '.join(comment))
+    page.put(result,summary="Journal des recréations ({day}) ".format(day=format_date(day)) + ' - '.join(comment))
 
 if __name__ == "__main__" : 
 
