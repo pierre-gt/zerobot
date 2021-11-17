@@ -32,28 +32,28 @@ def main():
 	site = pywikibot.Site()
 	now = datetime.now()
 
-	page = pywikibot.Page(site, u"Wikipédia:Le Bistro/%i %s" % (int(now.strftime("%d")), now.strftime("%B %Y").decode('utf-8')))
+	page = pywikibot.Page(site, "Wikipédia:Le Bistro/%i %s" % (int(now.strftime("%d")), now.strftime("%B %Y").decode('utf-8')))
 
 	text = page.get()
-	text_part = text[text.index(u"\n== Aujourd'hui, dans Wikipédia =="):]
+	text_part = text[text.index("\n== Aujourd'hui, dans Wikipédia =="):]
 	text_part_old = text_part
-	text_part = text_part.replace(u"Actuellement, Wikipédia compte", u"Le ~~~~~, Wikipédia comptait")
-	text_part = text_part.replace(u"{{NUMBEROFARTICLES}}", u"{{subst:NUMBEROFARTICLES}}")
-	text_part = text_part.replace(u"{{Nombre d'articles de qualité}}", u"{{subst:formatnum:{{subst:#expr:{{subst:PAGESINCATEGORY:Article de qualité|R}}-3}}}}")
-	text_part = text_part.replace(u"{{Nombre de bons articles}}", u"{{subst:formatnum:{{subst:#expr:{{subst:PAGESINCATEGORY:Bon article|R}}-3}}}}")
-	text_part = text_part.replace(u"{{Nombre d'articles géolocalisés sur Terre}}", u"{{subst:formatnum:{{subst:#expr:{{subst:PAGESINCATEGORY:Article géolocalisé sur Terre|R}}}}}}")
-	text_part = text_part.replace(u"{{Wikipédia:Le Bistro/Labels}}", u"{{subst:Wikipédia:Le Bistro/Labels}}")
-	text_part = text_part.replace(u"{{Wikipédia:Le Bistro/Test}}", u"{{subst:Wikipédia:Le Bistro/Test}}")
+	text_part = text_part.replace("Actuellement, Wikipédia compte", "Le ~~~~~, Wikipédia comptait")
+	text_part = text_part.replace("{{NUMBEROFARTICLES}}", "{{subst:NUMBEROFARTICLES}}")
+	text_part = text_part.replace("{{Nombre d'articles de qualité}}", "{{subst:formatnum:{{subst:#expr:{{subst:PAGESINCATEGORY:Article de qualité|R}}-3}}}}")
+	text_part = text_part.replace("{{Nombre de bons articles}}", "{{subst:formatnum:{{subst:#expr:{{subst:PAGESINCATEGORY:Bon article|R}}-3}}}}")
+	text_part = text_part.replace("{{Nombre d'articles géolocalisés sur Terre}}", "{{subst:formatnum:{{subst:#expr:{{subst:PAGESINCATEGORY:Article géolocalisé sur Terre|R}}}}}}")
+	text_part = text_part.replace("{{Wikipédia:Le Bistro/Labels}}", "{{subst:Wikipédia:Le Bistro/Labels}}")
+	text_part = text_part.replace("{{Wikipédia:Le Bistro/Test}}", "{{subst:Wikipédia:Le Bistro/Test}}")
 
 	text = text.replace(text_part_old, text_part)
 
-	page.put(text, comment = u"Bot: Substitution des modèles afin de rendre fixes les statistiques fixes dans la section [[#Aujourd.27hui.2C_dans_Wikip.C3.A9dia|#Aujourd'hui, dans Wikipédia]]")
+	page.put(text, comment = "Bot: Substitution des modèles afin de rendre fixes les statistiques fixes dans la section [[#Aujourd.27hui.2C_dans_Wikip.C3.A9dia|#Aujourd'hui, dans Wikipédia]]")
 
 
 if __name__ == '__main__':
     try:
         main()
-    except Exception, myexception:
+    except Exception as myexception:
         _errorhandler.handle(myexception)
         raise
     finally:
