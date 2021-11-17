@@ -32,7 +32,7 @@ def main():
 	site = pywikibot.Site()
 	now = datetime.now()
 
-	page = pywikibot.Page(site, "Wikipédia:Le Bistro/%i %s" % (int(now.strftime("%d")), now.strftime("%B %Y").decode('utf-8')))
+	page = pywikibot.Page(site, "Wikipédia:Le Bistro/%i %s" % (int(now.strftime("%d")), now.strftime("%B %Y")))
 
 	text = page.get()
 	text_part = text[text.index("\n== Aujourd'hui, dans Wikipédia =="):]
@@ -47,7 +47,7 @@ def main():
 
 	text = text.replace(text_part_old, text_part)
 
-	page.put(text, comment = "Bot: Substitution des modèles afin de rendre fixes les statistiques fixes dans la section [[#Aujourd.27hui.2C_dans_Wikip.C3.A9dia|#Aujourd'hui, dans Wikipédia]]")
+	page.put(text, summary = "Bot: Substitution des modèles afin de rendre fixes les statistiques fixes dans la section [[#Aujourd.27hui.2C_dans_Wikip.C3.A9dia|#Aujourd'hui, dans Wikipédia]]")
 
 
 if __name__ == '__main__':
