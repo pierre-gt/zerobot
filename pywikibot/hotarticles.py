@@ -224,9 +224,9 @@ GROUP BY page_id HAVING count_changes >= %(limit)i AND nb_users >= %(minimum_con
 ORDER BY count_changes DESC;" % {
         'category':page_to_sql_string(self.cat), \
         'rev_id':rev_id, 'rev_timestamp':rev_timestamp, \
-        'limit':self.minimum, 'actions':self.actions.encode('utf-8'),
-        'minimum_contributeurs':self.minimum_contributeurs,
-        'bots_inclus_str':self.bots_inclus_str,
+        'limit':self.minimum, 'actions':self.actions.encode('utf-8'), \
+        'minimum_contributeurs':self.minimum_contributeurs, \
+        'bots_inclus_str':self.bots_inclus_str, \
         'namespaces': self.namespaces}
 		_errorhandler.log_context(query, category='sql')
 
