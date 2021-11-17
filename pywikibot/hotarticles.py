@@ -46,8 +46,8 @@ class BotArticlesChauds():
                 self.modele = modele
                 self.dry = dry
 
-                self.matchDebut = u"<!-- Ce tableau est créé automatiquement par un robot. Articles Chauds DEBUT -->"
-                self.matchFin = u"\n<!-- Ce tableau est créé automatiquement par un robot. Articles Chauds FIN -->"
+                self.matchDebut = "<!-- Ce tableau est créé automatiquement par un robot. Articles Chauds DEBUT -->"
+                self.matchFin = "\n<!-- Ce tableau est créé automatiquement par un robot. Articles Chauds FIN -->"
 
                 self.cat = None
                 self.nbMax = None
@@ -65,7 +65,7 @@ class BotArticlesChauds():
                 self.diff = None
                 self.lien_historique = None
 
-                self.comment = u'Bot: Mise à jour des articles chauds'
+                self.comment = 'Bot: Mise à jour des articles chauds'
 
         def get_params(self):
                 text = self.main_page.get()
@@ -78,88 +78,88 @@ class BotArticlesChauds():
                                 break
 
                 if not template_in_use:
-                        _errorhandler.message(u"Aucun modèle {{%s}} détecté sur la page" % modele.title(asLink=False), addtags={'page': self.main_page})
+                        _errorhandler.message("Aucun modèle {{%s}} détecté sur la page" % modele.title(asLink=False), addtags={'page': self.main_page})
                         return False
 
-                titre_categorie = check_and_return_parameter(template_in_use, u'catégorie')
+                titre_categorie = check_and_return_parameter(template_in_use, 'catégorie')
                 if not titre_categorie:
                         return False
                 self.cat = pywikibot.Category(site, titre_categorie)
                 if not self.cat.exists():
-                        _errorhandler.message(u"Erreur : la catégorie n'existe pas", addtags={'page': self.main_page})
+                        _errorhandler.message("Erreur : la catégorie n'existe pas", addtags={'page': self.main_page})
                         return False
 
                 self.nbMax = check_and_return_parameter(template_in_use, 'nbMax', -1)
                 try:
                         self.nbMax = int(self.nbMax)
                 except:
-                        _errorhandler.message(u'Erreur : nbMax incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : nbMax incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.minimum = check_and_return_parameter(template_in_use, 'minimum', '10')
                 try:
                         self.minimum = int(self.minimum)
                 except:
-                        _errorhandler.message(u'Erreur : minimum incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : minimum incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.actions = check_and_return_parameter(template_in_use, 'actions', '0,1,3')
                 try:
                         [int(k) for k in self.actions.split(',')]
                 except:
-                        _errorhandler.message(u'Erreur : des actions spécifiées ne sont pas des entiers', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : des actions spécifiées ne sont pas des entiers', addtags={'page': self.main_page})
                         return False
 
-                self.delai = check_and_return_parameter(template_in_use, u'délai', '7')
+                self.delai = check_and_return_parameter(template_in_use, 'délai', '7')
                 try:
                         self.delai = int(self.delai)
                         if self.delai <= 0:
-                                _errorhandler.message(u'Erreur : délai négatif', addtags={'page': self.main_page})
+                                _errorhandler.message('Erreur : délai négatif', addtags={'page': self.main_page})
                                 return False
                 except:
-                        _errorhandler.message(u'Erreur : délai incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : délai incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.orange = check_and_return_parameter(template_in_use, 'limite_orange', '20')
                 try:
                         self.orange = int(self.orange)
                 except:
-                        _errorhandler.message(u'Erreur : orange incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : orange incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.rouge = check_and_return_parameter(template_in_use, 'limite_rouge', '40')
                 try:
                         self.rouge = int(self.rouge)
                 except:
-                        _errorhandler.message(u'Erreur : rouge incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : rouge incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.mineures = check_and_return_parameter(template_in_use, 'mineures', '0')
                 try:
                         self.mineures = int(self.mineures)
                 except:
-                        _errorhandler.message(u'Erreur : mineures incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : mineures incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.contributeurs = check_and_return_parameter(template_in_use, 'contributeurs', '0')
                 try:
                         self.contributeurs = int(self.contributeurs)
                 except:
-                        _errorhandler.message(u'Erreur : contributeurs incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : contributeurs incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.minimum_contributeurs = check_and_return_parameter(template_in_use, 'minimum_contributeurs', '1')
                 try:
                         self.minimum_contributeurs = int(self.minimum_contributeurs)
                 except:
-                        _errorhandler.message(u'Erreur : minimum_contributeurs incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : minimum_contributeurs incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.bots_inclus = check_and_return_parameter(template_in_use, 'bots_inclus', '1')
                 try:
                         self.bots_inclus = int(self.bots_inclus)
                 except:
-                        _errorhandler.message(u'Erreur : bots_inclus incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : bots_inclus incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.bots_inclus_str = ''
@@ -171,37 +171,37 @@ class BotArticlesChauds():
                 try:
                         self.transclusion = int(self.transclusion)
                 except:
-                        _errorhandler.message(u'Erreur : transclusion incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : transclusion incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.diff = check_and_return_parameter(template_in_use, 'diff', '0')
                 try:
                         self.diff = int(self.diff)
                 except:
-                        _errorhandler.message(u'Erreur : diff incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : diff incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.lien_historique = check_and_return_parameter(template_in_use, 'lien_historique', '0')
                 try:
                         self.lien_historique = int(self.lien_historique)
                 except:
-                        _errorhandler.message(u'Erreur : diff incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : diff incorrect', addtags={'page': self.main_page})
                         return False
 
                 self.namespaces = check_and_return_parameter(template_in_use, 'namespaces', '0')
-                print self.namespaces
+                print(self.namespaces)
                 try:
                         # Check namespaces specified are actually numbers,
                         # and preformat them for the SQL request
                         self.namespaces = "(" + ",".join([str(int(k)) for k in self.namespaces.split(",")]) + ")"
                 except:
-                        _errorhandler.message(u'Erreur : namespaces incorrect', addtags={'page': self.main_page})
+                        _errorhandler.message('Erreur : namespaces incorrect', addtags={'page': self.main_page})
                         return False
 
                 return True
 
         def build_table(self):
-                frwiki_p = MySQLdb.connect(host='frwiki.labsdb', db='frwiki_p', read_default_file="/data/project/totoazero/replica.my.cnf")
+                frwiki_p = MySQLdb.connect(host='frwiki.analytics.db.svc.wikimedia.cloud', db='frwiki_p', read_default_file="/data/project/naggobot/replica.my.cnf")
 
                 frwiki_p.query("SELECT s.rev_id, s.rev_timestamp FROM revision AS s \
                 WHERE s.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL %i DAY),'%%Y%%m%%d%%H%%i%%s') \
@@ -233,11 +233,11 @@ ORDER BY count_changes DESC;" % {
                 if self.nbMax > 0:
                         query = query[:-1] + " LIMIT %i;" % self.nbMax
 
-                print query
+                print(query)
                 frwiki_p.query(query)
                 results = frwiki_p.store_result()
 
-                text = u""
+                text = ""
 
                 # Il peut ne pas être nécessaire d'effectuer les transclusions
                 # si le nombre de résultats n'excède par le paramètre transclusion
@@ -250,7 +250,7 @@ ORDER BY count_changes DESC;" % {
                 if do_transclude:
                         text += "<onlyinclude>"
 
-                text += u"{|"
+                text += "{|"
                 for i in range(results.num_rows()):
                         if do_transclude and i == self.transclusion:
                                 # on vient d'atteindre le nombre de transclusions
@@ -290,13 +290,13 @@ ORDER BY count_changes DESC;" % {
                                 diff_str = ' <span class="(classe)s">%(gras)s(%(signe)s{{formatnum:%(diff_value)i}})%(gras)s</span>' % {'classe':classe, \
                                         'signe':signe, 'gras':gras, 'diff_value':diff_value}
 
-                        actions_str = u"""'''%i'''&nbsp;<span style="font-size:60%%">actions</span>""" % count
+                        actions_str = """'''%i'''&nbsp;<span style="font-size:60%%">actions</span>""" % count
                         if self.lien_historique:
-                                actions_str = u"[//fr.wikipedia.org/w/index.php?title=" + decode_sql(page, remove_underscores=False) + \
-                                        u"&action=history" + actions_str + u"]"
+                                actions_str = "[//fr.wikipedia.org/w/index.php?title=" + decode_sql(page, remove_underscores=False) + \
+                                        "&action=history" + actions_str + "]"
 
                         if self.mineures and self.contributeurs:
-                                text += u"""\n|-
+                                text += """\n|-
 | style="text-align:center; font-size:130%%; color:white; background:%(color)s; padding: 0 0.2em" | %(actions_str)s
 | rowspan="3" style="padding: 0.4em;" | [[%(page)s]]%(diff)s
 |-
@@ -306,7 +306,7 @@ ORDER BY count_changes DESC;" % {
 |-
 |""" % {'color':color, 'actions_str':actions_str, 'page':decode_sql(page), 'count_minor':count_minor, 'nb_users':nb_users, 'diff':diff_str}
                         elif self.contributeurs:
-                                text += u"""\n|-
+                                text += """\n|-
 | style="text-align:center; font-size:130%%; color:white; background:%(color)s; padding: 0 0.2em" | %(actions_str)s
 | rowspan="2" style="padding: 0.4em;" | [[%(page)s]]%(diff)s
 |-
@@ -314,7 +314,7 @@ ORDER BY count_changes DESC;" % {
 |-
 |""" % {'color':color, 'actions_str':actions_str, 'page':decode_sql(page), 'nb_users':nb_users, 'diff':diff_str}
                         elif self.mineures:
-                                text += u"""\n|-
+                                text += """\n|-
 | style="text-align:center; font-size:130%%; color:white; background:%(color)s; padding: 0 0.2em" | %(actions_str)s
 | rowspan="2" style="padding: 0.4em;" | [[%(page)s]]%(diff)s
 |-
@@ -322,7 +322,7 @@ ORDER BY count_changes DESC;" % {
 |-
 |""" % {'color':color, 'actions_str':actions_str, 'page':decode_sql(page), 'count_minor':count_minor, 'diff':diff_str}
                         else:
-                                text += u"""\n|-
+                                text += """\n|-
 | style="text-align:center; font-size:130%%; color:white; background:%(color)s; padding: 0 0.2em" | %(actions_str)s
 | style="padding: 0.4em;" | [[%(page)s]]%(diff)s""" % {'color':color, 'actions_str':actions_str, \
                                                'page':decode_sql(page), 'diff':diff_str}
@@ -362,9 +362,9 @@ ORDER BY count_changes DESC;" % {
                         pywikibot.output(new_text)
 
         def run(self):
-                pywikibot.output(u"\n=== Doing page %s ===" % self.main_page.title())
+                pywikibot.output("\n=== Doing page %s ===" % self.main_page.title())
                 if not self.get_params():
-                        pywikibot.output(u"Erreur lors de la récupération des paramètres")
+                        pywikibot.output("Erreur lors de la récupération des paramètres")
                         return False
 
                 return self.edit_page()
@@ -378,7 +378,7 @@ if __name__ == '__main__':
                 for arg in pywikibot.handleArgs():
                         if arg == "-dry":
                                 dry = True
-                                pywikibot.output(u'(dry is ON)')
+                                pywikibot.output('(dry is ON)')
 
                         elif arg[0:6] == "-test:":
                                 test = True
@@ -388,12 +388,12 @@ if __name__ == '__main__':
                                 # pour afficher la mention uniquement
                                 # la première fois que l'argument est rencontré
                                 if not test:
-                                        pywikibot.output(u'(test is ON)')
+                                        pywikibot.output('(test is ON)')
 
                 site = pywikibot.Site()
-                titre_modele = u"Utilisateur:ZéroBot/Articles chauds"
+                titre_modele = "Utilisateur:ZéroBot/Articles chauds"
                 modele = pywikibot.Page(site, titre_modele)#, ns = 10)
-                cat = pywikibot.Category(site, u"Catégorie:Page mise à jour par un bot/Articles chauds")
+                cat = pywikibot.Category(site, "Catégorie:Page mise à jour par un bot/Articles chauds")
 
 
                 # le générateur a été créé via la lecture des arguments
@@ -408,11 +408,11 @@ if __name__ == '__main__':
                         try:
                                 bot = BotArticlesChauds(page, modele, dry)
                                 if not bot.run():
-                                        pywikibot.output(u'Page %s not done' % page.title())
-                        except Exception, ex:
+                                        pywikibot.output('Page %s not done' % page.title())
+                        except Exception as ex:
                                 pywikibot.output("Error occurred while doing page %s" % page.title())
 				_errorhandler.handle(ex, fatal=False, addtags={'page': page})
-        except Exception, ex:
+        except Exception as ex:
                 if not (test or dry):
                         _errorhandler.handle(ex)
                 raise
