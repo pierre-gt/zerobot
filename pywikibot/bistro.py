@@ -38,11 +38,11 @@ from datetime import datetime, timedelta
 # Define the main function
 def main():
 	force = False
-	for arg in pywikibot.handleArgs():
+	for arg in pywikibot.handle_args():
 		if arg.startswith('-force'):
 			force = True
 		else:
-			pywikibot.output(u'Syntax: bistro.py [-force]')
+			pywikibot.output('Syntax: bistro.py [-force]')
 			exit()
 
 	if config.verbose_output:
@@ -64,13 +64,12 @@ def main():
 	datetimefinal=datetime.utcnow()+timedelta(44)
 
 	date=datetimetarget.strftime('%d %B %Y')
-	date=date.decode('utf-8')
 	if date[0]=='0':
 		date=date[1:]
 	if len(config.debug_log):
-	  date=u'User:ZéroBot/Wikipédia:Le Bistro/'+date
+		date='User:ZéroBot/Wikipédia:Le Bistro/'+date
 	else:
-	  date=u'Wikipédia:Le Bistro/'+date
+		date='Wikipédia:Le Bistro/'+date
 
 	site = pywikibot.Site()
 	page=pywikibot.Page(site, date)
@@ -82,13 +81,12 @@ def main():
 		titlelist=list()
 		while datetimetarget < datetimefinal:
 			date=datetimetarget.strftime('%d %B %Y')
-			date=date.decode('utf-8')
 			if date[0]=='0':
 				date=date[1:]
 			if len(config.debug_log):
-			  date=u'User:ZéroBot/Wikipédia:Le Bistro/'+date
+				date='User:ZéroBot/Wikipédia:Le Bistro/'+date
 			else:
-			  date=u'Wikipédia:Le Bistro/'+date
+				date='Wikipédia:Le Bistro/'+date
 			page=pywikibot.Page(site, date)
 			titlelist.append(page)
 			datetimetarget=datetimetarget+timedelta(1)
@@ -97,7 +95,7 @@ def main():
 
 		catpreloadingGen=pagegenerators.PreloadingGenerator(gen, 60)
 
-		newtext = u'{{subst:Wikipédia:Le Bistro/préchargement}}'
+		newtext = '{{subst:Wikipédia:Le Bistro/préchargement}}'
 
 		for page in catpreloadingGen:
 			if not force and not page.exists():
@@ -106,19 +104,19 @@ def main():
 				page.put(newtext, comment='Initialisation de la page', watchArticle = None, minorEdit = False)
 			elif force:
 				## Écrasement de la page existante
-				pywikibot.output(u'Checking %s'% page.title())
+				pywikibot.output('Checking %s'% page.title())
 
 				overwrite=False
 				if page.exists():
-				  history=page.getVersionHistory()
-				  if len(history)==1:
-					overwrite=True
+					history=page.getVersionHistory()
+					if len(history)==1:
+						overwrite=True
 				else:
-				  overwrite=True
+					overwrite=True
 
 				if overwrite:
-				  pywikibot.output('Correcting %s' % page.title())
-				  page.put(newtext, comment='Initialisation de la page', watchArticle = None, minorEdit = False)
+					pywikibot.output('Correcting %s' % page.title())
+					page.put(newtext, comment='Initialisation de la page', watchArticle = None, minorEdit = False)
 
 	else:
 		pywikibot.output('%s exists, no action needed' % date)
@@ -129,7 +127,7 @@ def main():
 if __name__ == '__main__':
 	try:
 		main()
-	except Exception, myexception:
+	except Exception as myexception:
 		_errorhandler.handle(myexception)
 		raise
 	finally:
