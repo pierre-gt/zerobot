@@ -27,13 +27,18 @@ import time
 import datetime
 import traceback
 
+
+def encode_sql(string):
+        return string.replace('"', '\\"').replace("'", "\\'").replace(' ', '_')
+
 def page_to_string(page, asLink = False, withNamespace=False):
-        return page.title(asLink = asLink, withNamespace = withNamespace)
+        return encode_sql(page.title(as_link = asLink, with_ns = withNamespace))
 
 def decode_sql(string, remove_underscores=True):
+        string=string.decode('utf-8')
         if remove_underscores:
                 string = string.replace('_', ' ')
-        return string.decode('utf-8')
+        return string
 
 class BotArticlesChauds():
         def __init__(self, main_page, modele, dry=False):
@@ -69,7 +74,7 @@ class BotArticlesChauds():
                 templates = textlib.extract_templates_and_params(text)
                 template_in_use = None
                 for tuple in templates:
-                        if tuple[0] == modele.title(asLink=False):
+                        if tuple[0] == modele.title(as_link=False):
                                 template_in_use = tuple[1]
                                 break
 
@@ -197,13 +202,12 @@ class BotArticlesChauds():
                 return True
 
         def build_table(self):
-                frwiki_p = mysql.connector.connect(host='frwiki.analytics.db.svc.wikimedia.cloud', db='frwiki_p', read_default_file="/data/project/naggobot/replica.my.cnf")
-                cursor=frwiki_p.cursor()
-                results=cursor.execute("SELECT s.rev_id, s.rev_timestamp FROM revision AS s \
+                frwiki_p = mysql.connector.connect(host='frwiki.analytics.db.svc.wikimedia.cloud', db='frwiki_p', option_files="/data/project/naggobot/replica.my.cnf")
+                cursor=frwiki_p.cursor(dictionary=True)
+                cursor.execute("SELECT s.rev_id, s.rev_timestamp FROM revision AS s \
                 WHERE s.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL %i DAY),'%%Y%%m%%d%%H%%i%%s') \
-                ORDER BY s.rev_timestamp ASC LIMIT 1;", self.delai)
-                result = results.fetchone()
-
+                ORDER BY s.rev_timestamp ASC LIMIT 1;" % self.delai)
+                result = cursor.fetchone()
                 rev_timestamp = int(result['rev_timestamp'])
                 rev_id = int(result['rev_id'])
 
@@ -216,27 +220,26 @@ WHERE cl_to='%(category)s' AND page_latest > %(rev_id)i) AS main \
 ON rc_cur_id=page_id \
 WHERE rc_timestamp>%(rev_timestamp)i AND rc_type IN (%(actions)s) %(bots_inclus_str)s \
 GROUP BY page_id HAVING count_changes >= %(limit)i AND nb_users >= %(minimum_contributeurs)i \
-ORDER BY count_changes DESC;" 
-		_errorhandler.log_context(query, category='sql')
+ORDER BY count_changes DESC;" % {
+        'category':page_to_string(self.cat), \
+        'rev_id':rev_id, 'rev_timestamp':rev_timestamp, \
+        'limit':self.minimum, 'actions':self.actions, \
+        'minimum_contributeurs':self.minimum_contributeurs, \
+        'bots_inclus_str':self.bots_inclus_str, \
+        'namespaces': self.namespaces}
+                _errorhandler.log_context(query, category='sql')
 
                 if self.nbMax > 0:
                         query = query[:-1] + " LIMIT %i;" % self.nbMax
 
-                print(query)
-                results=cursor.execute(query, {
-        'category':page_to_string(self.cat), \
-        'rev_id':rev_id, 'rev_timestamp':rev_timestamp, \
-        'limit':self.minimum, 'actions':self.actions.encode('utf-8'), \
-        'minimum_contributeurs':self.minimum_contributeurs, \
-        'bots_inclus_str':self.bots_inclus_str, \
-        'namespaces': self.namespaces})
-
+                cursor.execute(query)
                 text = ""
 
                 # Il peut ne pas être nécessaire d'effectuer les transclusions
                 # si le nombre de résultats n'excède par le paramètre transclusion
                 # renseigné.
-                if self.transclusion and results.rowcount() > self.transclusion:
+                results=cursor.fetchall()
+                if self.transclusion and len(results) > self.transclusion:
                         do_transclude = True
                 else:
                         do_transclude = False
@@ -245,12 +248,12 @@ ORDER BY count_changes DESC;"
                         text += "<onlyinclude>"
 
                 text += "{|"
-                for i in range(results.rowcount()):
+                for i in range(len(results)):
                         if do_transclude and i == self.transclusion:
                                 # on vient d'atteindre le nombre de transclusions
                                 text += "</onlyinclude>"
 
-                        result = results.fetchone()
+                        result = results[i]
                         count = int(result['count_changes'])
                         count_minor = int(result['count_minor'])
                         page = result['page_title']
@@ -369,7 +372,7 @@ if __name__ == '__main__':
                 dry = False
                 test = False
                 gen = []
-                for arg in pywikibot.handleArgs():
+                for arg in pywikibot.handle_args():
                         if arg == "-dry":
                                 dry = True
                                 pywikibot.output('(dry is ON)')
