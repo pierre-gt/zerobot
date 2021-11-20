@@ -27,11 +27,8 @@ import time
 import datetime
 import traceback
 
-def encode_sql(string):
-        return string.replace('"', '\\"').replace("'", "\\'").replace(' ', '_').encode('utf-8')
-
-def page_to_sql_string(page, asLink = False, withNamespace=False):
-        return encode_sql(page.title(asLink = asLink, withNamespace = withNamespace))
+def page_to_string(page, asLink = False, withNamespace=False):
+        return page.title(asLink = asLink, withNamespace = withNamespace)
 
 def decode_sql(string, remove_underscores=True):
         if remove_underscores:
@@ -201,12 +198,11 @@ class BotArticlesChauds():
 
         def build_table(self):
                 frwiki_p = mysql.connector.connect(host='frwiki.analytics.db.svc.wikimedia.cloud', db='frwiki_p', read_default_file="/data/project/naggobot/replica.my.cnf")
-
-                frwiki_p.query("SELECT s.rev_id, s.rev_timestamp FROM revision AS s \
+                cursor=frwiki_p.cursor()
+                results=cursor.execute("SELECT s.rev_id, s.rev_timestamp FROM revision AS s \
                 WHERE s.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL %i DAY),'%%Y%%m%%d%%H%%i%%s') \
-                ORDER BY s.rev_timestamp ASC LIMIT 1;" % self.delai)
-                results = frwiki_p.store_result()
-                result = results.fetch_row(how=1)[0]
+                ORDER BY s.rev_timestamp ASC LIMIT 1;", self.delai)
+                result = results.fetchone()
 
                 rev_timestamp = int(result['rev_timestamp'])
                 rev_id = int(result['rev_id'])
@@ -227,21 +223,20 @@ ORDER BY count_changes DESC;"
                         query = query[:-1] + " LIMIT %i;" % self.nbMax
 
                 print(query)
-                frwiki_p.execute(query, {
-        'category':page_to_sql_string(self.cat), \
+                results=cursor.execute(query, {
+        'category':page_to_string(self.cat), \
         'rev_id':rev_id, 'rev_timestamp':rev_timestamp, \
         'limit':self.minimum, 'actions':self.actions.encode('utf-8'), \
         'minimum_contributeurs':self.minimum_contributeurs, \
         'bots_inclus_str':self.bots_inclus_str, \
         'namespaces': self.namespaces})
-                results = frwiki_p.store_result()
 
                 text = ""
 
                 # Il peut ne pas être nécessaire d'effectuer les transclusions
                 # si le nombre de résultats n'excède par le paramètre transclusion
                 # renseigné.
-                if self.transclusion and results.num_rows() > self.transclusion:
+                if self.transclusion and results.rowcount() > self.transclusion:
                         do_transclude = True
                 else:
                         do_transclude = False
@@ -250,12 +245,12 @@ ORDER BY count_changes DESC;"
                         text += "<onlyinclude>"
 
                 text += "{|"
-                for i in range(results.num_rows()):
+                for i in range(results.rowcount()):
                         if do_transclude and i == self.transclusion:
                                 # on vient d'atteindre le nombre de transclusions
                                 text += "</onlyinclude>"
 
-                        result = results.fetch_row(how=1)[0]
+                        result = results.fetchone()
                         count = int(result['count_changes'])
                         count_minor = int(result['count_minor'])
                         page = result['page_title']
@@ -380,7 +375,6 @@ if __name__ == '__main__':
                                 pywikibot.output('(dry is ON)')
 
                         elif arg[0:6] == "-test:":
-                                test = True
                                 titre_page_test = arg[6:]
                                 gen.append(titre_page_test)
 
@@ -388,6 +382,7 @@ if __name__ == '__main__':
                                 # la première fois que l'argument est rencontré
                                 if not test:
                                         pywikibot.output('(test is ON)')
+                                test = True
 
                 site = pywikibot.Site()
                 titre_modele = "Utilisateur:ZéroBot/Articles chauds"
