@@ -50,23 +50,23 @@ def end_page(main_page, date_debut_traitement, first_passage):
 
 # TODO: à mutualiser
 def check_and_return_parameter(template, parameter, default_value=None, strip=True):
-	if template.has_key(parameter):
+	if parameter in template:
 		value = template[parameter]
 		value = re.sub("<!-- .* -->", "", value) # Suppression d'éventuels commentaires
 		if strip:
 			value = value.strip()
-		pywikibot.output(u'* %s = %s' % (parameter, value))
+		pywikibot.output('* %s = %s' % (parameter, value))
 		if value:
 			return value
 		else:
-			pywikibot.output(u"* %s missing : %s was taken instead" % (parameter, default_value))
+			pywikibot.output("* %s missing : %s was taken instead" % (parameter, default_value))
 			return default_value
 	else:
 		if default_value != None:
-			pywikibot.output(u"* %s missing : %s was taken instead" % (parameter, default_value))
+			pywikibot.output("* %s missing : %s was taken instead" % (parameter, default_value))
 			return default_value
 		else:
-			pywikibot.output(u"* %s missing" % parameter)
+			pywikibot.output("* %s missing" % parameter)
 			return None
 
 def find_date(article, category):
@@ -92,7 +92,7 @@ def find_date(article, category):
 	if result:
 		id = result[0][1]
 	else:
-		pywikibot.output(u"article %s introuvable" % title.decode('utf-8'))
+		pywikibot.output("article %s introuvable" % title.decode('utf-8'))
 		return None
 	pywikibot.output('SELECT cl_from, cl_timestamp FROM categorylinks WHERE cl_from = %s AND cl_to = "%s"' % (id.encode('utf-8'), category.title(asLink = False, underscore = True, withNamespace = False).encode('utf-8')))
 	results=frwiki_p.query('SELECT cl_from, cl_timestamp FROM categorylinks WHERE cl_from = %s AND cl_to = "%s"' % (id.encode('utf-8'), category.title(asLink = False, underscore = True, withNamespace = False).encode('utf-8')))
@@ -100,10 +100,10 @@ def find_date(article, category):
 	result=results.fetch_row(maxrows=0)
 	if result:
 		timestamp = pywikibot.Timestamp.strptime(result[0][1], "%Y-%m-%d %H:%M:%S")
-		pywikibot.output(u"Found: %s" % timestamp)
+		pywikibot.output("Found: %s" % timestamp)
 		return timestamp
 	else:
-		pywikibot.output(u"pas de date trouvée pour %s" % title.decode('utf-8'))
+		pywikibot.output("pas de date trouvée pour %s" % title.decode('utf-8'))
 		return None
 
 def main():
@@ -122,7 +122,7 @@ def main():
 	for arg in pywikibot.handleArgs():
 		if arg == "-dry":
 			dry = True
-			pywikibot.output(u'(dry is ON)')
+			pywikibot.output('(dry is ON)')
 
 		elif arg[0:6] == "-test:":
 			test = True
@@ -136,30 +136,30 @@ def main():
 			recurse_test = True
 			recurse_test_value = bool(arg[9:])
 
-	comment_modele = u"%(nombre_articles)i articles) (Bot: Mise à jour de la liste des articles récents (%(precision_pages)s)"
+	comment_modele = "%(nombre_articles)i articles) (Bot: Mise à jour de la liste des articles récents (%(precision_pages)s)"
 	site = pywikibot.Site()
-	titre_modele = u"Articles récents"
+	titre_modele = "Articles récents"
 	modele = pywikibot.Page(site, titre_modele, ns = 10)
 	gen = pagegenerators.ReferringPageGenerator(modele, onlyTemplateInclusion = True)
 
-	matchDebut1 = u"<!-- Ce tableau est créé automatiquement par un robot. Articles Récents DEBUT -->"
-	matchFin1 = u"\n<!-- Ce tableau est créé automatiquement par un robot. Articles Récents FIN -->"
+	matchDebut1 = "<!-- Ce tableau est créé automatiquement par un robot. Articles Récents DEBUT -->"
+	matchFin1 = "\n<!-- Ce tableau est créé automatiquement par un robot. Articles Récents FIN -->"
 
-	matchDebut2 = u"<!-- Ce tableau est créé automatiquement par un robot. Articles Récents Liste DEBUT -->"
-	matchFin2 = u"\n<!-- Ce tableau est créé automatiquement par un robot. Articles Récents Liste FIN -->"
+	matchDebut2 = "<!-- Ce tableau est créé automatiquement par un robot. Articles Récents Liste DEBUT -->"
+	matchFin2 = "\n<!-- Ce tableau est créé automatiquement par un robot. Articles Récents Liste FIN -->"
 
 	if test:
-		pywikibot.output(u'(test is ON)')
+		pywikibot.output('(test is ON)')
 		gen = [pywikibot.Page(site, titre_page_test)]
 
 	if ns_test:
-		pywikibot.output(u'(ns_test is ON)')
+		pywikibot.output('(ns_test is ON)')
 
 
 	for main_page in gen:
 		try:
 			comment = comment_modele
-			pywikibot.output(u"\n========================\nTraitement de %s\n========================" % main_page.title())
+			pywikibot.output("\n========================\nTraitement de %s\n========================" % main_page.title())
 			text = main_page.get()
 
 			#####################
@@ -168,17 +168,17 @@ def main():
 			templates = textlib.extract_templates_and_params_regex(text)
 			template_in_use = None
 			for tuple in templates:
-				if tuple[0] != u'Articles récents':
+				if tuple[0] != 'Articles récents':
 					continue
 				else:
 					template_in_use = tuple[1]
 					break
 
 			if not template_in_use:
-				pywikibot.output(u"Aucun modèle {{Articles récents}} détecté sur la page %s" % main_page.title())
+				pywikibot.output("Aucun modèle {{Articles récents}} détecté sur la page %s" % main_page.title())
 				continue
 
-			titre_categorie = check_and_return_parameter(template_in_use, u'catégorie')
+			titre_categorie = check_and_return_parameter(template_in_use, 'catégorie')
 			if not titre_categorie:
 				continue
 			cat = pywikibot.Category(site, titre_categorie)
@@ -187,7 +187,7 @@ def main():
 			try:
 				nbMax = int(nbMax)
 			except:
-				pywikibot.output(u'Erreur : nbMax incorrect')
+				pywikibot.output('Erreur : nbMax incorrect')
 				continue
 
 			namespaces = check_and_return_parameter(template_in_use, 'namespaces', '0')
@@ -195,7 +195,7 @@ def main():
 			try:
 				namespaces = [int(k) for k in namespaces]
 			except:
-				pywikibot.output(u'Erreur : des namespaces spécifiés ne sont pas des entiers')
+				pywikibot.output('Erreur : des namespaces spécifiés ne sont pas des entiers')
 				continue
 
 			recurse = check_and_return_parameter(template_in_use, 'recurse', '0')
@@ -208,17 +208,17 @@ def main():
 			try:
 				delai_creation = int(delai_creation)
 			except:
-				pywikibot.output(u'Erreur : delai incorrect')
+				pywikibot.output('Erreur : delai incorrect')
 				continue
 
-			format_date = check_and_return_parameter(template_in_use, u'date') or None
+			format_date = check_and_return_parameter(template_in_use, 'date') or None
 			if format_date:
 				try:
 					test_date = datetime.datetime.now()
 					test_date.strftime(format_date)
 				except:
 					format_date = None
-					pywikibot.output(u'Erreur : format de date incorrect')
+					pywikibot.output('Erreur : format de date incorrect')
 
 			puce = check_and_return_parameter(template_in_use, 'puces', '#')
 
@@ -232,7 +232,7 @@ def main():
 			dico_dates_presentes = {}
 
 			for recent in listeRecents_old:
-				r = re.search(u"(\[\[.*\]\]) ?(\(.+\))?", recent)
+				r = re.search("(\[\[.*\]\]) ?(\(.+\))?", recent)
 				if r:
 					listeRecents.append(r.group(1))
 					if r.group(2):
@@ -240,7 +240,7 @@ def main():
 				else:
 					pass
 
-			text = re.sub(re.compile(u"%s.*%s" % (matchDebut2, matchFin2), re.S), u"%s%s" % (matchDebut2, matchFin2), text)
+			text = re.sub(re.compile("%s.*%s" % (matchDebut2, matchFin2), re.S), "%s%s" % (matchDebut2, matchFin2), text)
 			#####################
 
 			# Au cas où il n'y aurait aucune nouvelle page mais
@@ -248,7 +248,7 @@ def main():
 			exception_maj = False
 
 			# Pour préciser le résumé d'édition
-			precisions_comment = u""
+			precisions_comment = ""
 
 			pywikibot.output('stade 0')
 			#####################
@@ -256,38 +256,38 @@ def main():
 			#####################
 			for titre_article in listeRecents:
 				try:
-					page = pywikibot.Page(site, re.sub(u"\[\[(.*)\]\]", "\\1", titre_article)) # Pour enlever les crochets : [[…]].
+					page = pywikibot.Page(site, re.sub("\[\[(.*)\]\]", "\\1", titre_article)) # Pour enlever les crochets : [[…]].
 					# Si la page existe toujours et n'est pas une
 					# redirection, on la laisse dans la liste…
 					page.get()
 
-					if format_date and not dico_dates_presentes.has_key(titre_article) and find_date(page, cat):
+					if format_date and titre_article not in dico_dates_presentes and find_date(page, cat):
 						# Date trouvée alors qu'elle n'y était pas.
 						exception_maj = True
 						dico_dates_presentes[titre_article] = find_date(page, cat).strftime(format_date)
 
 				except pywikibot.NoPage:
-					pywikibot.output(u"La page %s n'existe plus." % page.title(asLink=True))
+					pywikibot.output("La page %s n'existe plus." % page.title(asLink=True))
 
-					pywikibot.output(u"Suppression de la page %s de la liste listeRecents" % page.title(asLink=True))
-					precisions_comment += (u"; - %s" % titre_article)
+					pywikibot.output("Suppression de la page %s de la liste listeRecents" % page.title(asLink=True))
+					precisions_comment += ("; - %s" % titre_article)
 					listeRecents.remove(titre_article)
 
 					# On force la mise à jour de la page, même si aucun nouvel article
 					# récent n'est trouvé.
 					exception_maj = True
 				except pywikibot.IsRedirectPage:
-					pywikibot.output(u"La page %s n'est plus qu'une redirection."  % page.title(asLink=True))
+					pywikibot.output("La page %s n'est plus qu'une redirection."  % page.title(asLink=True))
 
 					try:
 						nouvelle_page = page.getRedirectTarget()
-						pywikibot.output(u"Modification du titre la page %s (renommée en %s)" % (page.title(asLink=True), nouvelle_page.title(asLink=True, withSection=False)))
-						precisions_comment += (u"; - %s ; + %s" % (titre_article, nouvelle_page.title(asLink=True, withSection=False)))
+						pywikibot.output("Modification du titre la page %s (renommée en %s)" % (page.title(asLink=True), nouvelle_page.title(asLink=True, withSection=False)))
+						precisions_comment += ("; - %s ; + %s" % (titre_article, nouvelle_page.title(asLink=True, withSection=False)))
 
 						if not nouvelle_page.title(asLink=True, withSection=False) in listeRecents:
 							listeRecents[listeRecents.index(titre_article)] = nouvelle_page.title(asLink=True, withSection=False)
 						else:
-							pywikibot.output(u"La page destination était déjà présente dans la liste")
+							pywikibot.output("La page destination était déjà présente dans la liste")
 							listeRecents.pop(listeRecents.index(titre_article))
 
 						# On force la mise à jour de la page, même si aucun nouvel article
@@ -295,14 +295,14 @@ def main():
 						exception_maj = True
 
 					except:
-						pywikibot.output(u"an error occured (CircularRedirect?)")
+						pywikibot.output("an error occured (CircularRedirect?)")
 				#except KeyboardInterrupt:
 				#	pywikibot.stopme()
 				except:
 					try:
-						pywikibot.output(u"Erreur inconnue lors du traitement de la page %s"  % page.title(asLink=True))
+						pywikibot.output("Erreur inconnue lors du traitement de la page %s"  % page.title(asLink=True))
 					except:
-						pywikibot.output(u"Erreur inconnue lors du traitement d'une page")
+						pywikibot.output("Erreur inconnue lors du traitement d'une page")
 				else:
 					# Si pas d'erreur : on passe à la page suivante
 					continue
@@ -315,7 +315,7 @@ def main():
 			#####################
 			### Recherches des articles nouveaux
 			#####################
-			precisions_comment2 = u""
+			precisions_comment2 = ""
 
 			# Récupération de la dernière mise à jour de la page par le bot
 			db=_mysql.connect(host='tools-db', db='s51245__totoazero', read_default_file="/data/project/totoazero/replica.my.cnf")
@@ -394,7 +394,7 @@ def main():
 				if result:
 					dico_timestamp[key.decode('utf-8')] = pywikibot.Timestamp.strptime(result[0][1], "%Y-%m-%d %H:%M:%S")
 				else:
-					pywikibot.output(u"pas de date trouvée pour %s" % key.decode('utf-8'))
+					pywikibot.output("pas de date trouvée pour %s" % key.decode('utf-8'))
 
 			pywikibot.output(dico_timestamp)
 
@@ -421,7 +421,7 @@ def main():
 			for titre_page in list_new_old:
 				# NB : titre_page est du type [[Nom de la page]]
 				pywikibot.output("----------")
-				pywikibot.output(u"Page récemment ajoutée : %s" % titre_page)
+				pywikibot.output("Page récemment ajoutée : %s" % titre_page)
 				if not titre_page in listeRecents:
 					if delai_creation:
 						# Délai imposé (en heures) depuis la création de l'article,
@@ -447,20 +447,20 @@ def main():
 						pywikibot.output(date_plus_petite_requise)
 
 						if date_plus_petite_requise > date_creation:
-							pywikibot.output(u"Vérification du délai : Non")
-							pywikibot.output(u"La page ne satisfait pas le délai depuis la création imposé.")
+							pywikibot.output("Vérification du délai : Non")
+							pywikibot.output("La page ne satisfait pas le délai depuis la création imposé.")
 							list_new.remove(titre_page)
 							continue
 						else:
-							pywikibot.output(u"Vérification du délai : OK")
+							pywikibot.output("Vérification du délai : OK")
 
-					precisions_comment2 += (u"; + %s" % titre_page)
+					precisions_comment2 += ("; + %s" % titre_page)
 				else:
 					# Si l'article se trouve déjà dans la liste listeRecents
 					# il est inutile de le rajouter à nouveau.
 					list_new.remove(titre_page)
 
-					pywikibot.output(u"L'article était déjà présent sur la page.")
+					pywikibot.output("L'article était déjà présent sur la page.")
 
 					# Re-vérification pour voir si list_new contient toujours
 					# au moins une page.
@@ -511,10 +511,10 @@ def main():
 			# nbMax articles récents exactement
 
 			pywikibot.output('stade 6')
-			liste_nouveaux_recents_string = u"<!-- Ce tableau est créé automatiquement par un robot. Articles Récents DEBUT -->"
+			liste_nouveaux_recents_string = "<!-- Ce tableau est créé automatiquement par un robot. Articles Récents DEBUT -->"
 			for titre_article in liste_nouveaux_recents:
-				liste_nouveaux_recents_string += u'\n%s %s' % (puce, titre_article)
-				if format_date and dico_timestamp.has_key(titre_article[2:-2].replace(' ', '_')):
+				liste_nouveaux_recents_string += '\n%s %s' % (puce, titre_article)
+				if format_date and titre_article[2:-2].replace(' ', '_') in dico_timestamp:
 					pywikibot.output('stade 6-1')
 					pywikibot.output(dico_timestamp[titre_article[2:-2].replace(' ', '_')].strftime(format_date))
 					try:
@@ -523,9 +523,9 @@ def main():
 						try:
 							liste_nouveaux_recents_string += (' (' + dico_timestamp[titre_article[2:-2].replace(' ', '_')].strftime(format_date) + ')')
 						except:
-							raise "erreur au stade 6-1"
+							raise Exception("erreur au stade 6-1")
 
-				elif dico_dates_presentes.has_key(titre_article):
+				elif titre_article in dico_dates_presentes:
 					pywikibot.output('stade 6-2')
 					pywikibot.output(dico_dates_presentes[titre_article])
 					try:
@@ -534,9 +534,9 @@ def main():
 						try:
 							liste_nouveaux_recents_string += (' (' + dico_dates_presentes[titre_article].decode('utf-8') + ')')
 						except:
-							raise "erreur au stade 6-2"
+							raise Exception("erreur au stade 6-2")
 
-			liste_nouveaux_recents_string += u"\n<!-- Ce tableau est créé automatiquement par un robot. Articles Récents FIN -->"
+			liste_nouveaux_recents_string += "\n<!-- Ce tableau est créé automatiquement par un robot. Articles Récents FIN -->"
 			#####################
 
 			#####################
@@ -546,11 +546,11 @@ def main():
 
 			pywikibot.output('stade 7')
 			# Mise à jour de la liste des articles récents (listeRecents)
-			new_text = re.sub(re.compile(u'%s.*%s' % (matchDebut1, matchFin1), re.S), liste_nouveaux_recents_string, new_text)
+			new_text = re.sub(re.compile('%s.*%s' % (matchDebut1, matchFin1), re.S), liste_nouveaux_recents_string, new_text)
 
 			pywikibot.output(new_text)
 
-			pywikibot.output(u'Commentaire: %s' % comment)
+			pywikibot.output('Commentaire: %s' % comment)
 
 			if not dry:
 				main_page.put(new_text, comment = comment)
@@ -558,14 +558,14 @@ def main():
 			else:
 				pywikibot.showDiff(main_page.get(), new_text)
 			#####################
-		except Exception, myexception:
+		except Exception as myexception:
 			pywikibot.output("Erreur lors du traitement de la page %s" % main_page.title(asLink=True))
 			_errorhandler.handle(myexception, level='warning', addtags={'page': main_page.title(asLink=True)})
 
 if __name__ == '__main__':
 	try:
 		main()
-	except Exception, myexception:
+	except Exception as myexception:
 		if not (test or dry):
 			_errorhandler.handle(myexception)
 		raise

@@ -21,9 +21,8 @@ from pywikibot import pagegenerators, config, textlib
 import _errorhandler
 import pywikibot
 import pickle
-import md5
 import os
-import MySQLdb
+import mysql.connector
 import time
 import datetime
 import traceback
@@ -201,7 +200,7 @@ class BotArticlesChauds():
                 return True
 
         def build_table(self):
-                frwiki_p = MySQLdb.connect(host='frwiki.analytics.db.svc.wikimedia.cloud', db='frwiki_p', read_default_file="/data/project/naggobot/replica.my.cnf")
+                frwiki_p = mysql.connector.connect(host='frwiki.analytics.db.svc.wikimedia.cloud', db='frwiki_p', read_default_file="/data/project/naggobot/replica.my.cnf")
 
                 frwiki_p.query("SELECT s.rev_id, s.rev_timestamp FROM revision AS s \
                 WHERE s.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL %i DAY),'%%Y%%m%%d%%H%%i%%s') \
@@ -221,20 +220,20 @@ WHERE cl_to='%(category)s' AND page_latest > %(rev_id)i) AS main \
 ON rc_cur_id=page_id \
 WHERE rc_timestamp>%(rev_timestamp)i AND rc_type IN (%(actions)s) %(bots_inclus_str)s \
 GROUP BY page_id HAVING count_changes >= %(limit)i AND nb_users >= %(minimum_contributeurs)i \
-ORDER BY count_changes DESC;" % {
-        'category':page_to_sql_string(self.cat), \
-        'rev_id':rev_id, 'rev_timestamp':rev_timestamp, \
-        'limit':self.minimum, 'actions':self.actions.encode('utf-8'), \
-        'minimum_contributeurs':self.minimum_contributeurs, \
-        'bots_inclus_str':self.bots_inclus_str, \
-        'namespaces': self.namespaces}
-                _errorhandler.log_context(query, category='sql')
+ORDER BY count_changes DESC;" 
+		_errorhandler.log_context(query, category='sql')
 
                 if self.nbMax > 0:
                         query = query[:-1] + " LIMIT %i;" % self.nbMax
 
                 print(query)
-                frwiki_p.query(query)
+                frwiki_p.execute(query, {
+        'category':page_to_sql_string(self.cat), \
+        'rev_id':rev_id, 'rev_timestamp':rev_timestamp, \
+        'limit':self.minimum, 'actions':self.actions.encode('utf-8'), \
+        'minimum_contributeurs':self.minimum_contributeurs, \
+        'bots_inclus_str':self.bots_inclus_str, \
+        'namespaces': self.namespaces})
                 results = frwiki_p.store_result()
 
                 text = ""

@@ -1,3 +1,4 @@
 *.pyc
 virtual-env
 venv
+**/old_scripts
