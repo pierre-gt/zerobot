@@ -198,7 +198,7 @@ class TreatementBot:
 			# On extrait les paramètres utiles (statut et date)
 				try:
 					date = template[1]['date']
-					if template[1]['traitée'].strip() == 'oui':
+					if template[1]['traitée'].strip() in ('oui','non'):
 						traitee = True
 					elif template[1]['traitée'].strip() in ('attente', 'encours'):
 						wait = True
@@ -221,8 +221,8 @@ class TreatementBot:
 		Classement des requêtes.
 		Le bot prend en compte deux statuts, passés par le paramètre 'traitée'
 		dans un modèle de début du type {{RA début}} :
-			- 'oui' : la requête a été traitée
-			- 'attente' : la requête est en attente
+			- 'oui' ou 'non' : la requête a été traitée (acceptée ou refusée)
+			- 'attente' ou 'encours': la requête est en attente
 
 		Si le paramètre 'traitée' n'est pas renseigné, où s'il ne correspond à aucun
 		des deux statuts connus par le bot, celui-ci ignore la requête, et la laisse
