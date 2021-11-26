@@ -101,7 +101,7 @@ def main():
 			if not force and not page.exists():
 				## Création de la page non-existante
 				pywikibot.output('Creating %s' % page.title())
-				page.put(newtext, comment='Initialisation de la page', watchArticle = None, minorEdit = False)
+				page.put(newtext, summary='Initialisation de la page', watch = None, minor = False)
 			elif force:
 				## Écrasement de la page existante
 				pywikibot.output('Checking %s'% page.title())
@@ -116,7 +116,7 @@ def main():
 
 				if overwrite:
 					pywikibot.output('Correcting %s' % page.title())
-					page.put(newtext, comment='Initialisation de la page', watchArticle = None, minorEdit = False)
+					page.put(newtext, summary='Initialisation de la page', watch = None, minor = False)
 
 	else:
 		pywikibot.output('%s exists, no action needed' % date)
