@@ -247,7 +247,7 @@ def process(day):
     try:
         result = page.get() + result
     except NoPageError:
-        result = '{{mise à jour bot|Zérobot}}' + result
+        result = '{{mise à jour bot|NaggoBot}}' + result
     if comment: comment.insert(0, '')
     page.put(result,summary="Journal des recréations ({day}) ".format(day=format_date(day)) + ' - '.join(comment))
 
