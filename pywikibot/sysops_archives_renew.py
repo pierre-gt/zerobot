@@ -401,6 +401,10 @@ class TreatementBot:
 		self.put_queue.add(self.refused_page, text_refused, comment = comment)
 		pywikibot.output(comment)
 
+		comment = "Classement des requêtes : %i requête(s) sans suite" % len(dict_requetes_par_statut['sanssuite'])
+		self.put_queue.add(self.sanssuite_page, text_sanssuite, comment = comment)
+		pywikibot.output(comment)
+
 	def archivage(self):
 		"""
 		Archivage ou suppression des requêtes classées (suivant le paramétrage du
