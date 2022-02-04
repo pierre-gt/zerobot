@@ -44,64 +44,68 @@ import pywikibot
 from pywikibot import flow
 import _errorhandler, complements
 from pywikibot import config, page, textlib
-import locale, re, _mysql, urllib
+import locale, re, urllib.request, urllib.parse, urllib.error
 from datetime import datetime
+import json
 
 class WarnBot:
 	def __init__(self):
 		self.site = pywikibot.Site('fr', 'wikipedia')
-		self.main_page = pywikibot.Page(self.site, u"Wikipédia:Demande de restauration de page")
-		self.database = _mysql.connect(host='tools-db', db='s51245__totoazero', read_default_file="/data/project/totoazero/replica.my.cnf")
+		self.main_page = pywikibot.Page(self.site, "Wikipédia:Demande de restauration de page")
+		self.statut_drp_page = pywikibot.Page(self.site, 'Utilisateur:NaggoBot/Statut DRP')
+
+		self.statut_avant = json.loads(self.statut_drp_page.text)
+		self.statut_apres = {}
 
 		self.status_knonw = ['non', 'oui', 'attente', 'autreavis', 'autre', 'sanssuite']
 
 		self.messages = {
 		# Les messages 'non' et 'oui' ont trois paramètres qui doivent être précisés :
 		# 'titre_page', 'lien_drp' et 'date_debut_lien_valide'
-		'non': u"""Bonjour,\n
+		'non': """Bonjour,\n
 Ceci est un message automatique vous avertissant que votre demande de restauration pour [[%(titre_page)s]] a été refusée. Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif durant une semaine à compter du %(date_debut_lien_valide)s.""",
-		'oui': u"""Bonjour,\n
+		'oui': """Bonjour,\n
 Ceci est un message automatique vous avertissant que votre demande de restauration pour [[%(titre_page)s]] a été acceptée. Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif durant une semaine à compter du %(date_debut_lien_valide)s.\n
 L'article est à nouveau en ligne, nous vous laissons le soin d'y apporter toutes les preuves nécessaires permettant de conforter son admissibilité.""",
 
 		# Le message 'attente' a deux paramètres qui doivent être précisés :
 		# 'titre_page', 'lien_drp'
-		'attente': u"""Bonjour,\n
+		'attente': """Bonjour,\n
 Ceci est un message automatique vous avertissant que votre demande de restauration pour [[%(titre_page)s]] est en attente d'informations supplémentaires de votre part. Afin d'y apporter tous les arguments et preuves nécessaires, [[%(lien_drp)s|cliquez ici]].""",
 
 		# Le message 'autreavis'/'autre' a deux paramètres qui doivent être précisés :
 		# 'titre_page', 'lien_drp'
-		'autreavis': u"""Bonjour,\n
+		'autreavis': """Bonjour,\n
 Ceci est un message automatique vous avertissant que votre demande de restauration pour [[%(titre_page)s]] est en cours d'examen. Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]].""",
-		'autre': u"""Bonjour,\n
+		'autre': """Bonjour,\n
 Ceci est un message automatique vous avertissant que votre demande de restauration pour [[%(titre_page)s]] est en cours d'examen. Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]].""",
 
 		# Le message 'oui_PaS' a cinq paramètres qui doivent être précisés :
 		# 'titre_page', 'lien_drp', 'date_debut_lien_valide', 'titre_PaS' et 'date_debut_PaS'
-		'oui_PaS': u"""Bonjour,\n
+		'oui_PaS': """Bonjour,\n
 Ceci est un message automatique vous avertissant que votre demande de restauration pour [[%(titre_page)s]] a été acceptée. Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif durant une semaine à compter du %(date_debut_lien_valide)s.\n
 L'article est à nouveau en ligne, tout en étant soumis à une procédure communautaire de suppression, afin de savoir si votre article est, ou non, admissible.\n
 Vous pouvez accéder à cette page en [[%(titre_PaS)s|cliquant ici]]. Cette procédure dure une semaine à compter du %(date_debut_PaS)s ; nous vous laissons le soin d'y apporter toutes les preuves nécessaires permettant de conforter son admissibilité.""",
 
 		# Le message 'oui_PaS_mais_introuvable' a trois paramètres qui doivent être précisés :
 		# 'titre_page', 'lien_drp', 'date_debut_lien_valide'
-		'oui_PaS_mais_introuvable': u"""Bonjour,\n
+		'oui_PaS_mais_introuvable': """Bonjour,\n
 Ceci est un message automatique vous avertissant que votre demande de restauration pour [[%(titre_page)s]] a été acceptée.
 L'article est à nouveau en ligne, tout en étant soumis à une procédure communautaire de suppression, afin de savoir si votre article est, ou non, admissible. Pour plus de détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif durant une semaine à compter du %(date_debut_lien_valide)s.\n
 Cette procédure dure une semaine ; nous vous laissons le soin d'y apporter toutes les preuves nécessaires permettant de conforter son admissibilité.""",
 
 		# Le message 'sanssuite' a trois paramètres qui doivent être précisés :
 		# 'titre_page', 'lien_drp', 'date_debut_lien_valide'
-		'sanssuite': u"""Bonjour,\n
+		'sanssuite': """Bonjour,\n
 Ceci est un message automatique vous avertissant que votre demande de restauration pour [[%(titre_page)s]] a été classée sans suite.
 Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif durant une semaine à compter du %(date_debut_lien_valide)s.""",
 		}
 
-		self.titre_message = u"Concernant votre demande de restauration de la page [[%(titre_page)s]]"
-		self.resume = u"/* Concernant votre demande de restauration de la page [[%(titre_page)s]] */ nouvelle section"
-		self.match_titre_requete = re.compile(u"== *([^=].*?) *==")
+		self.titre_message = "Concernant votre demande de restauration de la page [[%(titre_page)s]]"
+		self.resume = "/* Concernant votre demande de restauration de la page [[%(titre_page)s]] */ nouvelle section"
+		self.match_titre_requete = re.compile("== *([^=].*?) *==")
 
-		self.whitelist_page = pywikibot.Page(self.site, u'Utilisateur:ZéroBot/Whitelist')
+		self.whitelist_page = pywikibot.Page(self.site, 'Utilisateur:NaggoBot/Whitelist')
 		self.whitelist = [] # list of pywikibot.User
 		self.get_whitelist()
 
@@ -120,10 +124,10 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 
 		# Permet de ne garder que le texte contenant les requêtes à étudier,
 		# car plusieurs sections se trouvent sur la même page.
-		if match_debut == u'Requêtes en cours d\'examen':
-			text = text[0:text.index(u"= Requêtes à traiter =")]
-		elif match_debut == u'Requêtes à traiter':
-			text = text[text.index(u"= Requêtes à traiter ="):]
+		if match_debut == 'Requêtes en cours d\'examen':
+			text = text[0:text.index("= Requêtes à traiter =")]
+		elif match_debut == 'Requêtes à traiter':
+			text = text[text.index("= Requêtes à traiter ="):]
 
 		titres = complements.extract_titles(text, beginning = None, match_title = self.match_titre_requete)
 		sections = complements.extract_sections(text, titres)
@@ -134,10 +138,10 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 		}
 
 	def traitement(self):
-		pageTraitees = pywikibot.Page(self.site, u"Wikipédia:Demande de restauration de page/Traitées")
-		pageRefusees = pywikibot.Page(self.site, u"Wikipédia:Demande de restauration de page/Refusées")
-		pageSanssuite = pywikibot.Page(self.site, u"Wikipédia:Demande de restauration de page/Sans suite")
-		list = [(self.main_page, u'Requêtes à traiter'), (self.main_page, u"Requêtes en cours d'examen"), (pageTraitees, None), (pageRefusees, None), (pageSanssuite, None)]
+		pageTraitees = pywikibot.Page(self.site, "Wikipédia:Demande de restauration de page/Traitées")
+		pageRefusees = pywikibot.Page(self.site, "Wikipédia:Demande de restauration de page/Refusées")
+		pageSanssuite = pywikibot.Page(self.site, "Wikipédia:Demande de restauration de page/Sans suite")
+		list = [(self.main_page, 'Requêtes à traiter'), (self.main_page, "Requêtes en cours d'examen"), (pageTraitees, None), (pageRefusees, None), (pageSanssuite, None)]
 
 		for couple in list:
 			dict = self.analyse_une_section(page = couple[0], match_debut = couple[1])
@@ -158,41 +162,41 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 				PaS = False
 				found_full_template = False
 				for template in templates:
-					if template[0] == u'DRP début':
+					if template[0] == 'DRP début':
 						if not ('statut' in template[1]):
-							pywikibot.output(u"pas de paramètre 'statut' trouvé")
+							pywikibot.output("pas de paramètre 'statut' trouvé")
 							continue
 						elif not ('date' in template[1]):
-							pywikibot.output(u"pas de paramètre 'date' trouvé")
+							pywikibot.output("pas de paramètre 'date' trouvé")
 							continue
 
 						found_full_template = True
 						statut_actuel = template[1]['statut']
 						date = template[1]['date']
-						if template[1].has_key(u'PàS'):
+						if 'PàS' in template[1]:
 							pywikibot.output('phase try 0')
-							pywikibot.output(template[1][u'PàS'])
-							if template[1][u'PàS'] == 'oui':
+							pywikibot.output(template[1]['PàS'])
+							if template[1]['PàS'] == 'oui':
 								pywikibot.output('phase try 1')
 								PaS = True
 								page_PaS = None
-							elif template[1][u'PàS'] != '':
+							elif template[1]['PàS'] != '':
 								pywikibot.output('phase try 2')
 								PaS = True
-								page_PaS = pywikibot.Page(self.site, u"%s/Suppression" % template[1][u'PàS']).toggleTalkPage()
+								page_PaS = pywikibot.Page(self.site, "%s/Suppression" % template[1]['PàS']).toggleTalkPage()
 
-				pywikibot.output(u'found_full_template = %s' % found_full_template)
+				pywikibot.output('found_full_template = %s' % found_full_template)
 
 				if not found_full_template:
 					pywikibot.output('Fully fulfilled template was not found, skipping to next section.')
 					continue
 
-				pywikibot.output(u"PaS = %s" % PaS)
+				pywikibot.output("PaS = %s" % PaS)
 				if PaS:
 					try:
-						pywikibot.output(u"page_PaS = %s" % page_PaS)
+						pywikibot.output("page_PaS = %s" % page_PaS)
 					except:
-						pywikibot.output(u"no page_PaS")
+						pywikibot.output("no page_PaS")
 
 				# Pour enlever les == et les éventuels espaces
 				# du titre de la section puis les [[…]] qui sont
@@ -207,9 +211,9 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 				titre_section_MediaWiki = titre_section_MediaWiki.replace("]]", "")
 
 
-				pywikibot.output(u"=== %s ===" % titre_section)
-				pywikibot.output(u"statut_actuel = %s" % statut_actuel)
-				pywikibot.output(u"date = %s" % date)
+				pywikibot.output("=== %s ===" % titre_section)
+				pywikibot.output("statut_actuel = %s" % statut_actuel)
+				pywikibot.output("date = %s" % date)
 
 
 				if statut_actuel not in self.status_knonw:
@@ -219,12 +223,9 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 					continue
 
 				# Vérifier si la requête a déjà été analysée par le bot.
-				self.database.query('SELECT * FROM drp WHERE titre_section = "%s"' % titre_section_SQL.replace('"', '\\"').encode('utf-8'))
-				results=self.database.store_result()
-				result=results.fetch_row(maxrows=0)
-				if result:
+				if titre_section_SQL in self.statut_avant:
 					# Si oui, et si le statut est toujours le même, il n'y a rien à faire
-					statut_traite = result[0][1]
+					statut_traite = self.statut_avant[titre_section_SQL]
 
 					pywikibot.output(statut_traite)
 
@@ -237,26 +238,23 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 					if statut_traite == 'oui_PaS':
 						statut_traite = 'oui'
 
-					if statut_traite.decode('utf-8') == statut_actuel:
+					if statut_traite == statut_actuel:
 						# Si le statut actuel est le même que celui qui a déjà été
 						# traité, il n'y a rien d'autre à faire : le demandeur
 						# a déjà été averti.
-						pywikibot.output(u'DRP déjà traitée !')
+						pywikibot.output('DRP déjà traitée !')
+						self.statut_apres[titre_section_SQL] = statut_actuel
 						continue
 					else:
-						pywikibot.output(u'DRP déjà traitée mais statut différent…')
-						# Supprimer la requête de la base de donnée SQL pour éviter
-						# qu'elle ne se retrouve en double avec deux statuts
-						# différents.
-						self.database.query('DELETE FROM drp WHERE titre_section = "%s"' % titre_section_SQL.replace('"', '\\"').encode('utf-8'))
+						pywikibot.output('DRP déjà traitée mais statut différent…')
 
 				#print section
 
 				# Si on arrive ici, c'est que le demandeur n'a pas été averti du
 				# statut actuel
-				m1 = re.search(u"[dD]emandée? par .*\[ *\[ *([uU]tilisateur:|[uU]ser:|[sS]p[eé]cial:[cC]ontributions/)(?P<nom_demandeur>[^|\]]+)(\|| *\] *\])", section)
-				m2 = re.search(u"[dD]emandée? par {{u'?\|(?P<nom_demandeur>[^|]+?)}}", section)
-				m3 = re.search(u"[dD]emandée? par (?P<nom_demandeur>[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)", section)
+				m1 = re.search("[dD]emandée? par .*\[ *\[ *([uU]tilisateur:|[uU]ser:|[sS]p[eé]cial:[cC]ontributions/)(?P<nom_demandeur>[^|\]]+)(\|| *\] *\])", section)
+				m2 = re.search("[dD]emandée? par {{u'?\|(?P<nom_demandeur>[^|]+?)}}", section)
+				m3 = re.search("[dD]emandée? par (?P<nom_demandeur>[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)", section)
 
 				if m1:
 					nom_demandeur = m1.group('nom_demandeur')
@@ -268,30 +266,30 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 					nom_demandeur = m3.group('nom_demandeur')
 					#print 'm3'
 				else:
-					pywikibot.output(u'nom du demandeur introuvable !')
+					pywikibot.output('nom du demandeur introuvable !')
 					continue
 
 				#print nom_demandeur
 
 				demandeur = pywikibot.User(self.site, nom_demandeur)
-				if u'autopatrolled' in demandeur.groups():
-					pywikibot.output(u'demandeur autopatrolled : inutile de laisser un message')
+				if 'autopatrolled' in demandeur.groups():
+					pywikibot.output('demandeur autopatrolled : inutile de laisser un message')
 					continue
 				elif demandeur in self.whitelist:
-					pywikibot.output(u"l'utilisateur est sur la whitelist")
+					pywikibot.output("l'utilisateur est sur la whitelist")
 					continue
 
 
 				page_discussion_demandeur = demandeur.getUserTalkPage()
 				pywikibot.output(page_discussion_demandeur)
 
-				m = re.findall(u"\[ *\[ *(?P<titre_page>.*?) *\] *\]", titre_section)
+				m = re.findall("\[ *\[ *(?P<titre_page>.*?) *\] *\]", titre_section)
 				if not m:
-					pywikibot.output(u'Titre de la page concernée introuvable !')
+					pywikibot.output('Titre de la page concernée introuvable !')
 					continue
 
 				titre_page_concernee = m[0] # Si plusieurs titres sont présents, vérifier arbitrairement que le premier
-				titre_pages_concernees = u']], [['.join(m)
+				titre_pages_concernees = ']], [['.join(m)
 				pywikibot.output(titre_page_concernee)
 
 				# Vérifier si une PàS technique pour la restauration a été
@@ -305,15 +303,15 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 								page_PaS = pywikibot.Page(self.site, titre_page_concernee + "/Suppression").toggleTalkPage() #pywikibot.Page(self.site, u"Discussion:%s/Suppression" % titre_page_concernee)
 								page_PaS.get()
 							except:
-								pywikibot.output(u'erreur : la PàS technique ne semble pas exister ou n\'est pas normalisée !')
+								pywikibot.output('erreur : la PàS technique ne semble pas exister ou n\'est pas normalisée !')
 								statut_actuel = 'oui_PaS_mais_introuvable'
 						if page_PaS:
 							# La PàS peut avoir été renommée
 							if page_PaS.isRedirectPage():
 								page_PaS = page_PaS.getRedirectTarget()
 
-							if re.search(u"[pP]roposé *par.* ([0-9]{1,2}.*20[01][0-9]) à [0-9]{2}:[0-9]{2}", page_PaS.get()):
-								date_debut_PaS = re.search(u"[pP]roposé *par.* ([0-9]{1,2}.*20[01][0-9]) à [0-9]{2}:[0-9]{2}", page_PaS.get()).group(1)
+							if re.search("[pP]roposé *par.* ([0-9]{1,2}.*20[01][0-9]) à [0-9]{2}:[0-9]{2}", page_PaS.get()):
+								date_debut_PaS = re.search("[pP]roposé *par.* ([0-9]{1,2}.*20[01][0-9]) à [0-9]{2}:[0-9]{2}", page_PaS.get()).group(1)
 							else:
 								# Si la date n'est pas formatée comme attendue sur la PàS, le bot
 								# cherche sa date de création en remontant l'historique, puis l'exprime
@@ -327,21 +325,21 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 				# Ici, seul le titre de la section a besoin d'être encodé.
 				# Cependant, MediaWiki remplace les espaces par des tirets bas ('_')
 				# et les % dans l'encodage par des points ('.').
-				lien_drp = u"%s#%s" % (self.main_page.title(asLink = False), urllib.quote(titre_section_MediaWiki.encode('utf-8'), safe=" /").replace(" ", "_").replace("%", "."))
+				lien_drp = "%s#%s" % (self.main_page.title(as_link = False), urllib.parse.quote(titre_section_MediaWiki.encode('utf-8'), safe=" /").replace(" ", "_").replace("%", "."))
 
 				#pywikibot.output(u'lien_drp = %s' % lien_drp)
 
 				if statut_actuel in ['non', 'oui', 'oui_PaS_mais_introuvable', 'sanssuite']:
 					message = message % {'titre_page':titre_page_concernee, 'lien_drp':lien_drp, 'date_debut_lien_valide':date}
 				elif statut_actuel == 'oui_PaS':
-					if not type(date_debut_PaS) == unicode:
-						pywikibot.output(u"Formattage de date_debut_PaS")
+					if not type(date_debut_PaS) == str:
+						pywikibot.output("Formattage de date_debut_PaS")
 						date_debut_PaS = date_debut_PaS.decode('utf-8')
-					message = message % {'titre_page':titre_page_concernee, 'lien_drp':lien_drp, 'date_debut_lien_valide':date, 'titre_PaS':page_PaS.title(asLink = False), 'date_debut_PaS':date_debut_PaS}
+					message = message % {'titre_page':titre_page_concernee, 'lien_drp':lien_drp, 'date_debut_lien_valide':date, 'titre_PaS':page_PaS.title(as_link = False), 'date_debut_PaS':date_debut_PaS}
 				elif statut_actuel in ['attente', 'autre', 'autreavis']:
 					message = message % {'titre_page':titre_page_concernee, 'lien_drp':lien_drp}
 				else:
-					pywikibot.output(u'statut inconnu : %s' % statut_actuel)
+					pywikibot.output('statut inconnu : %s' % statut_actuel)
 					continue
 
 				#
@@ -352,37 +350,42 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 				if re.search(pattern_ipv6, page_discussion_demandeur.title()):
 					ipv6 = re.search(pattern_ipv6, page_discussion_demandeur.title()).group(1)
 					ipv6 = ipv6.upper()
-					page_discussion_demandeur = pywikibot.Page(pywikibot.Site(), u"Discussion utilisateur:"+ipv6)
+					page_discussion_demandeur = pywikibot.Page(pywikibot.Site(), "Discussion utilisateur:"+ipv6)
 				#
 
 				while page_discussion_demandeur.isRedirectPage():
 					page_discussion_demandeur = page_discussion_demandeur.getRedirectTarget()
 
 				titre = self.titre_message % {'titre_page': titre_pages_concernees}
-				if page_discussion_demandeur.isFlowPage():
+				if page_discussion_demandeur.is_flow_page():
 					board = pywikibot.flow.Board(self.site, page_discussion_demandeur.title())
 					board.new_topic(titre, message)
+					# print("flow", page_discussion_demandeur.title(), titre, message)
 
 				else:
 					if page_discussion_demandeur.text:
 						page_discussion_demandeur.text += '\n\n'
 						if message in page_discussion_demandeur.text:
-						    pywikibot.output(u'BUG #13: le message a déjà été posté sur %s !' % page_discussion_demandeur.title(asLink=True))
-						    continue
+							pywikibot.output('BUG #13: le message a déjà été posté sur %s !' % page_discussion_demandeur.title(as_link=True))
+							continue
 
-					page_discussion_demandeur.text += u"== %s ==" % titre + '\n' + message + u'\n\nDistribué par [[Utilisateur:ZéroBot|ZéroBot]], le ~~~~~'
+					page_discussion_demandeur.text += "== %s ==" % titre + '\n' + message + '\n\nDistribué par [[Utilisateur:NaggoBot|NaggoBot]], le ~~~~~'
 
 					comment = self.resume % {'titre_page': titre_pages_concernees}
 					pywikibot.output(comment)
 					try:
-						page_discussion_demandeur.save(comment=comment, minorEdit=False)
+						page_discussion_demandeur.save(summary=comment, minorEdit=False)
+						# print(page_discussion_demandeur.title(),titre,message)
 					except:
-						pywikibot.output(u'erreur lors de la publication du message !')
+						pywikibot.output('erreur lors de la publication du message !')
 						continue
 
 				# Enregistrer la requête comme analysée par le bot
-				self.database.query('INSERT INTO drp VALUES ("%s", "%s", CURRENT_TIMESTAMP)' % (titre_section_SQL.replace('"', '\\"').encode('utf-8'), statut_actuel.encode('utf-8')))
-
+				self.statut_apres[titre_section_SQL] = statut_actuel
+		print(json.dumps(self.statut_apres))
+		sorted_dict={k: self.statut_apres[k] for k in sorted(self.statut_apres)}
+		self.statut_drp_page.text = json.dumps(sorted_dict)
+		self.statut_drp_page.save(asynchronous=True, summary="Mise à jour des status DRP")
 
 def main():
 	locale.setlocale(locale.LC_ALL, 'fr_FR.utf8')
@@ -392,7 +395,7 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except Exception, myexception:
+    except Exception as myexception:
         _errorhandler.handle(myexception)
         raise
     finally:
