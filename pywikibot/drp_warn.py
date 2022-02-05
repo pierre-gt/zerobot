@@ -384,8 +384,8 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 				self.statut_apres[titre_section_SQL] = statut_actuel
 		print(json.dumps(self.statut_apres))
 		sorted_dict={k: self.statut_apres[k] for k in sorted(self.statut_apres)}
-		self.statut_drp_page.text = json.dumps(sorted_dict)
-		self.statut_drp_page.save(asynchronous=True, summary="Mise à jour des status DRP")
+		self.statut_drp_page.text = json.dumps(sorted_dict, sort_keys=True)
+		self.statut_drp_page.save(asynchronous=True, summary="Mise à jour des statuts DRP")
 
 def main():
 	locale.setlocale(locale.LC_ALL, 'fr_FR.utf8')
