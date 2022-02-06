@@ -5,7 +5,9 @@ Wikipedia
 Scripts disponibles sous licence GNU GPLv3 (sauf indication contraire)<br />
 Scripts distributed under the terms of the GNU GPLv3 license (unless otherwise specified)	<br />
 	https://www.gnu.org/licenses/gpl.html
-	
+
+---------
+Scripts repris par NaggoBot (https://fr.wikipedia.org/User:NaggoBot) après l'arrêt de ZéroBot en octobre-novembre 2021.
 ---------
 Scripts utilisés par ZéroBot (https://fr.wikipedia.org/User:ZéroBot), développés grâce au framework Pywikibot (https://www.mediawiki.org/wiki/Manual:Pywikibot), et qui nécessitent donc ce dernier pour pouvoir fonctionner.
 
