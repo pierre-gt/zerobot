@@ -141,9 +141,9 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 		pageTraitees = pywikibot.Page(self.site, "Wikipédia:Demande de restauration de page/Traitées")
 		pageRefusees = pywikibot.Page(self.site, "Wikipédia:Demande de restauration de page/Refusées")
 		pageSanssuite = pywikibot.Page(self.site, "Wikipédia:Demande de restauration de page/Sans suite")
-		list = [(self.main_page, 'Requêtes à traiter'), (self.main_page, "Requêtes en cours d'examen"), (pageTraitees, None), (pageRefusees, None), (pageSanssuite, None)]
+		liste_sections = [(self.main_page, 'Requêtes à traiter'), (self.main_page, "Requêtes en cours d'examen"), (pageTraitees, None), (pageRefusees, None), (pageSanssuite, None)]
 
-		for couple in list:
+		for couple in liste_sections:
 			dict = self.analyse_une_section(page = couple[0], match_debut = couple[1])
 			sections = dict['sections']
 
@@ -316,7 +316,7 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 								# Si la date n'est pas formatée comme attendue sur la PàS, le bot
 								# cherche sa date de création en remontant l'historique, puis l'exprime
 								# sous la forme attendue.
-								date_creation = page_PaS.getVersionHistory()[-1][1]
+								date_creation = list(page_PaS.revisions())[-1].timestamp
 								date_debut_PaS = date_creation.strftime("%d %B %Y")
 
 				message = self.messages[statut_actuel]
