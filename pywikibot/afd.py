@@ -189,7 +189,7 @@ def main():
 
         print(listedlist)
         templateList=list()
-        templatepage=pywikibot.Page(site, 'Modèle:Suppression')
+        templatepage=pywikibot.Page(site, 'Modèle:Admissibilité')
         templateList.append(templatepage.title())
         reflist=templatepage.getReferences(follow_redirects=False, with_template_inclusion=False, only_template_inclusion=False, filter_redirects=True)
         for page in reflist:
@@ -200,13 +200,13 @@ def main():
             found = pageIsListed(page, listedlist, templateList)
             if not found:
                talkpage=page.toggleTalkPage()
-               afdpage=pywikibot.Page(site, '%s/Suppression' % talkpage.title())
+               afdpage=pywikibot.Page(site, '%s/Admissibilité' % talkpage.title())
                if afdpage.isRedirectPage():
                    targetpage=afdpage.getRedirectTarget()
                    if targetpage.namespace()==0:
-                       pagetocheck=pywikibot.Page(site, re.sub('/Suppression', '', targetpage.title(withNamespace=False)))
+                       pagetocheck=pywikibot.Page(site, re.sub('/Admissibilité', '', targetpage.title(withNamespace=False)))
                    else:
-                       pagetocheck=pywikibot.Page(site, re.sub('/Suppression', '', targetpage.title()))
+                       pagetocheck=pywikibot.Page(site, re.sub('/Admissibilité', '', targetpage.title()))
                        pagetocheck=pagetocheck.toggleTalkPage()
                    found = pageIsListed(pagetocheck, listedlist, templateList)
             if not found:
