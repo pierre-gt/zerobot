@@ -136,7 +136,7 @@ def main():
             templateKeys[templateName] = None
 
 
-    catname='Catégorie:Page proposée à la suppression'
+    catname='''Catégorie:Page proposée au débat d'admissibilité'''
     categ=pywikibot.Category(site, catname)
     subcats=list(categ.subcategories())
     fullartlist=categ.articles()
@@ -157,7 +157,7 @@ def main():
         bot.run()
 
     if afdlist:
-        afdpage=pywikibot.Page(site, 'Wikipédia:Pages à supprimer')
+        afdpage=pywikibot.Page(site, '''Wikipédia:Débat d'admissibilité''')
         if len(config.debug_log):
             projectpage=pywikibot.Page(site, 'User:ZéroBot/Projet:Maintenance/Pages à supprimer')
         else:
@@ -213,7 +213,7 @@ def main():
                 notlisted.append(page.title())
                 pywikibot.output('Not listed: %s' % page.title())
 
-        newtext='=== Catégorisé mais pas sur [[Wikipédia:Pages à supprimer|PàS]] ===\n'
+        newtext='=== Catégorisé mais pas sur [[WP:DdA|DdA]] ===\n'
         for title in notlisted:
             page=pywikibot.Page(site, title)
             talkpage=page.toggleTalkPage()

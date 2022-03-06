@@ -183,7 +183,7 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 							elif template[1]['PàS'] != '':
 								pywikibot.output('phase try 2')
 								PaS = True
-								page_PaS = pywikibot.Page(self.site, "%s/Suppression" % template[1]['PàS']).toggleTalkPage()
+								page_PaS = pywikibot.Page(self.site, "%s/Admissibilité" % template[1]['PàS']).toggleTalkPage()
 
 				pywikibot.output('found_full_template = %s' % found_full_template)
 
@@ -300,7 +300,7 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 						pywikibot.output('oui_PaS')
 						if not page_PaS or not page_PaS.exists():
 							try:
-								page_PaS = pywikibot.Page(self.site, titre_page_concernee + "/Suppression").toggleTalkPage() #pywikibot.Page(self.site, u"Discussion:%s/Suppression" % titre_page_concernee)
+								page_PaS = pywikibot.Page(self.site, titre_page_concernee + "/Admissibilité").toggleTalkPage() #pywikibot.Page(self.site, u"Discussion:%s/Suppression" % titre_page_concernee)
 								page_PaS.get()
 							except:
 								pywikibot.output('erreur : la PàS technique ne semble pas exister ou n\'est pas normalisée !')
