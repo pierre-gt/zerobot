@@ -217,7 +217,7 @@ def main():
         for title in notlisted:
             page=pywikibot.Page(site, title)
             talkpage=page.toggleTalkPage()
-            newtext+='# [[:%s]]  ([[%s/Suppression|sous-page]])\n' % (title, talkpage.title())
+            newtext+='# [[:%s]]  ([[%s/Admissibilité|sous-page]])\n' % (title, talkpage.title())
 
         if not len(config.debug_log):
             projectpage.put(newtext, 'Mise à jour de la liste de maintenance')
