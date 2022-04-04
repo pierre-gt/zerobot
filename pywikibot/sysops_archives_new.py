@@ -65,8 +65,8 @@ class PutQueue:
 	def put_all(self):
 		total_put = 0
 		try:
-			for li in self.queue:
-				page, text, comment = li
+			while self.queue:
+				page, text, comment = self.queue.pop(0)
 				self.safe_put(page, text, comment)
 				total_put += 1
 		except Exception as myexception:
