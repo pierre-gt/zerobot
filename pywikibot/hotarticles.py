@@ -22,7 +22,7 @@ import _errorhandler
 import pywikibot
 import pickle
 import os
-import mysql.connector
+import pymysql
 import time
 import datetime
 import traceback
@@ -202,8 +202,8 @@ class BotArticlesChauds():
                 return True
 
         def build_table(self):
-                frwiki_p = mysql.connector.connect(host='frwiki.analytics.db.svc.wikimedia.cloud', db='frwiki_p', option_files="/data/project/naggobot/replica.my.cnf")
-                cursor=frwiki_p.cursor(dictionary=True)
+                frwiki_p = pymysql.connect(host='frwiki.analytics.db.svc.wikimedia.cloud', database='frwiki_p', read_default_file="/data/project/naggobot/replica.my.cnf", cursorclass=pymysql.cursors.DictCursor)
+                cursor=frwiki_p.cursor()
                 cursor.execute("SELECT s.rev_id, s.rev_timestamp FROM revision AS s \
                 WHERE s.rev_timestamp > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL %i DAY),'%%Y%%m%%d%%H%%i%%s') \
                 ORDER BY s.rev_timestamp ASC LIMIT 1;" % self.delai)
