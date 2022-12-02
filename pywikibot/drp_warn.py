@@ -271,7 +271,11 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 
 				#print nom_demandeur
 
-				demandeur = pywikibot.User(self.site, nom_demandeur)
+				try:
+					demandeur = pywikibot.User(self.site, nom_demandeur)
+				except Exception as e:
+					pywikibot.output('erreur dans la recuperation du demandeur : ' + repr(e))
+					continue
 				if 'autopatrolled' in demandeur.groups():
 					pywikibot.output('demandeur autopatrolled : inutile de laisser un message')
 					continue
