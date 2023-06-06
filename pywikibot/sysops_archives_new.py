@@ -200,7 +200,7 @@ class TreatementBot:
 					date = template[1]['date']
 					if template[1]['traitée'].strip() in ('oui','non'):
 						traitee = True
-					elif template[1]['traitée'].strip() in ('attente', 'encours'):
+					elif template[1]['traitée'].strip() in ('attente', 'encours', 'autre'):
 						wait = True
 				except:
 					pywikibot.output("Erreur ! Les paramètres 'date' et 'traitée' ne semblent pas exister !")
@@ -222,7 +222,7 @@ class TreatementBot:
 		Le bot prend en compte deux statuts, passés par le paramètre 'traitée'
 		dans un modèle de début du type {{RA début}} :
 			- 'oui' ou 'non' : la requête a été traitée (acceptée ou refusée)
-			- 'attente' ou 'encours': la requête est en attente
+			- 'attente', 'autre' ou 'encours': la requête est en attente
 
 		Si le paramètre 'traitée' n'est pas renseigné, où s'il ne correspond à aucun
 		des deux statuts connus par le bot, celui-ci ignore la requête, et la laisse
@@ -305,7 +305,8 @@ class TreatementBot:
 				# La requête n'a pas été traitée et pourtant elle n'est pas en attente.
 				# La requête n'a donc soit pas de statut, soit celui-ci n'est pas
 				# reconnu ou pas pris en charge.
-				#   ex : statuts 'autre' et 'autreavis'
+				#   ex : statut 'autreavis'
+				pywikibot.output('statut non reconnu')
 				continue
 
 			if not date and not attente:
