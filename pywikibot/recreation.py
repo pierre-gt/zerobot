@@ -115,7 +115,6 @@ def creation_log(start,end):
         if all_done:
             break
         datas = api_query(params)
-        import pprint
         if datas == []:
             break
         data = datas['query']["recentchanges"]
@@ -124,7 +123,10 @@ def creation_log(start,end):
         if 'query-continue' in datas:
             if 'recentchanges' in datas['query-continue']:
                 params['rccontinue'] = datas['query-continue']['recentchanges']['rccontinue']
-                
+        elif 'continue' in datas:
+            if 'rccontinue' in datas['continue']:
+                params['rccontinue'] = datas['continue']['rccontinue']
+        
         else:
             all_done = True
 
@@ -224,7 +226,7 @@ def process(day):
     
         dl = deletelog(page["title"])
         if dl:
-            page_pas = Page(Site(), "Discussion:" + page["title"] + "/Suppression")
+            page_pas = Page(Site(), "Discussion:" + page["title"] + "/Admissibilité")
             if page_pas.isRedirectPage():
                 page_pas = page_pas.getRedirectTarget()
             if page_pas.exists() and re.search(r'article supprimé', page_pas.get(), re.I):
