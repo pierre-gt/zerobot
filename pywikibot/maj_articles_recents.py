@@ -38,7 +38,7 @@ __version__ = '$Id: maj_articles_recents.py 2057 2016-02-07 17:40:07 (CET) Toto 
 import _errorhandler
 import pywikibot
 from pywikibot import pagegenerators, config, textlib
-import re, time, datetime, _mysql
+import re, time, datetime
 import locale
 
 def end_page(main_page, date_debut_traitement, first_passage):
