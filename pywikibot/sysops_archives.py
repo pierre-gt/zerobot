@@ -260,6 +260,10 @@ class TreatementBot:
 			# On extrait les paramètres utiles (statut et date)
 				try:
 					statut = template[1]['statut']
+					if statut == 'fait':
+						statut = 'oui'
+					if statut == 'pas fait':
+						statut = 'non'
 					date = template[1]['date']
 				except:
 					pywikibot.output("Erreur ! Les paramètres 'statut' et 'date' ne semblent pas exister !")
