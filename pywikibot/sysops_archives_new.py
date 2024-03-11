@@ -105,6 +105,7 @@ class TreatementBot:
 			self.dict = {
 			'archiver': True,
 			'supprimer':False,
+			'etat_en_cours':['encours'],
 			'delai': {'classement': 12, 'archivage': 4*24, 'suppression': None} # En heures,
 			}
 
@@ -122,6 +123,7 @@ class TreatementBot:
 			self.dict = {
 			'archiver': False,
 			'supprimer':True,
+			'etat_en_cours':['attente', 'encours', 'autre'],
 			'delai': {'classement': 12, 'archivage': None, 'suppression': 7*24} # En heures,
 			}
 
@@ -131,6 +133,24 @@ class TreatementBot:
 			self.text_below_waiting_requests = ""
 			self.text_below_untreated_requests = "\n{{Wikipédia:Requête aux administrateurs/Note:Requêtes à traiter}}"
 			self.template_prefix = "DPH"
+			self.template_title = "%s début" % self.template_prefix
+			self.template_end_title = "%s fin" % self.template_prefix
+			self.archivePrefix = ""#u"Archives/"
+
+		elif raccourci == 'dfh':
+			self.dict = {
+			'archiver': False,
+			'supprimer':True,
+			'etat_en_cours':['attente', 'encours', 'autre'],
+			'delai': {'classement': 12, 'archivage': None, 'suppression': 7*24} # En heures,
+			}
+
+			self.main_page = pywikibot.Page(self.site, "Wikipédia:Demande de fusion d'historiques")
+			self.treated_page = pywikibot.Page(self.site, "Wikipédia:Demande de fusion d'historiques/Traitées")
+
+			self.text_below_waiting_requests = ""
+			self.text_below_untreated_requests = "\n{{Wikipédia:Requête aux administrateurs/Note:Requêtes à traiter}}"
+			self.template_prefix = "DF"
 			self.template_title = "%s début" % self.template_prefix
 			self.template_end_title = "%s fin" % self.template_prefix
 			self.archivePrefix = ""#u"Archives/"
@@ -200,7 +220,7 @@ class TreatementBot:
 					date = template[1]['date']
 					if template[1]['traitée'].strip() in ('oui','non'):
 						traitee = True
-					elif template[1]['traitée'].strip() in ('attente', 'encours', 'autre'):
+					elif template[1]['traitée'].strip() in (self.dict['etat_en_cours']):
 						wait = True
 				except:
 					pywikibot.output("Erreur ! Les paramètres 'date' et 'traitée' ne semblent pas exister !")
@@ -612,7 +632,7 @@ def main():
 	except:
 		locale.setlocale(locale.LC_ALL, 'fr_FR')
 
-	liste_raccourcis = ['ra', 'dph']
+	liste_raccourcis = ['ra', 'dph', 'dfh']
 
 	for raccourci in liste_raccourcis:
 		try:
