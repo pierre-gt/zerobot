@@ -146,7 +146,7 @@ class TreatementBot:
 			}
 
 			self.main_page = pywikibot.Page(self.site, "Wikipédia:Demande de fusion d'historiques")
-			self.treated_page = pywikibot.Page(self.site, "Wikipédia:Demande de fusion d'historiques/Traitées")
+			self.treated_page = pywikibot.Page(self.site, "Wikipédia:Demande de fusion d'historiques/Requêtes traitées")
 
 			self.text_below_waiting_requests = ""
 			self.text_below_untreated_requests = "\n{{Wikipédia:Requête aux administrateurs/Note:Requêtes à traiter}}"
@@ -218,9 +218,13 @@ class TreatementBot:
 			# On extrait les paramètres utiles (statut et date)
 				try:
 					date = template[1]['date']
-					if template[1]['traitée'].strip() in ('oui','non'):
+					if 'traitée' in template[1]:
+						traitee = 'traitée'
+					else:
+						traitee = 'statut'
+					if template[1][traitee].strip() in ('oui','non'):
 						traitee = True
-					elif template[1]['traitée'].strip() in (self.dict['etat_en_cours']):
+					elif template[1][traitee].strip() in (self.dict['etat_en_cours']):
 						wait = True
 				except:
 					pywikibot.output("Erreur ! Les paramètres 'date' et 'traitée' ne semblent pas exister !")
