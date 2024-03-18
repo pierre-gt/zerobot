@@ -219,10 +219,10 @@ class TreatementBot:
 				try:
 					date = template[1]['date']
 					if 'traitée' in template[1]:
-						traitee = 'traitée'
+						var_traitee = 'traitée'
 					else:
-						traitee = 'statut'
-					if template[1][traitee].strip() in ('oui','non'):
+						var_traitee = 'statut'
+					if template[1][var_traitee].strip() in ('oui','non'):
 						traitee = True
 					elif template[1][traitee].strip() in (self.dict['etat_en_cours']):
 						wait = True
