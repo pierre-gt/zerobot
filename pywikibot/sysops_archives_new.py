@@ -139,10 +139,10 @@ class TreatementBot:
 
 		elif raccourci == 'dfh':
 			self.dict = {
-			'archiver': False,
-			'supprimer':True,
+			'archiver': True,
+			'supprimer':False,
 			'etat_en_cours':['attente', 'encours', 'autre'],
-			'delai': {'classement': 12, 'archivage': None, 'suppression': 7*24} # En heures,
+			'delai': {'classement': 12, 'archivage': 4*24, 'suppression': None} # En heures,
 			}
 
 			self.main_page = pywikibot.Page(self.site, "Wikipédia:Demande de fusion d'historiques")
