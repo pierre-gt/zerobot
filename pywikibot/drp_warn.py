@@ -41,7 +41,7 @@ __date__ = '2018-10-31 21:21:39 (CET)'
 #
 
 import pywikibot
-from pywikibot import flow
+#from pywikibot import flow
 import _errorhandler, complements
 from pywikibot import config, page, textlib
 import locale, re, urllib.request, urllib.parse, urllib.error
@@ -361,28 +361,28 @@ Afin d'en voir les détails, [[%(lien_drp)s|cliquez ici]]. Ce lien restera actif
 					page_discussion_demandeur = page_discussion_demandeur.getRedirectTarget()
 
 				titre = self.titre_message % {'titre_page': titre_pages_concernees}
-				if page_discussion_demandeur.is_flow_page():
-					board = pywikibot.flow.Board(self.site, page_discussion_demandeur.title())
-					board.new_topic(titre, message)
-					# print("flow", page_discussion_demandeur.title(), titre, message)
+				#if page_discussion_demandeur.is_flow_page():
+				#	board = pywikibot.flow.Board(self.site, page_discussion_demandeur.title())
+				#	board.new_topic(titre, message)
+				#	# print("flow", page_discussion_demandeur.title(), titre, message)
 
-				else:
-					if page_discussion_demandeur.text:
-						page_discussion_demandeur.text += '\n\n'
-						if message in page_discussion_demandeur.text:
-							pywikibot.output('BUG #13: le message a déjà été posté sur %s !' % page_discussion_demandeur.title(as_link=True))
-							continue
-
-					page_discussion_demandeur.text += "== %s ==" % titre + '\n' + message + '\n\nDistribué par [[Utilisateur:NaggoBot|NaggoBot]], le ~~~~~'
-
-					comment = self.resume % {'titre_page': titre_pages_concernees}
-					pywikibot.output(comment)
-					try:
-						page_discussion_demandeur.save(summary=comment, minorEdit=False)
-						# print(page_discussion_demandeur.title(),titre,message)
-					except:
-						pywikibot.output('erreur lors de la publication du message !')
+				#else:
+				if page_discussion_demandeur.text:
+					page_discussion_demandeur.text += '\n\n'
+					if message in page_discussion_demandeur.text:
+						pywikibot.output('BUG #13: le message a déjà été posté sur %s !' % page_discussion_demandeur.title(as_link=True))
 						continue
+
+				page_discussion_demandeur.text += "== %s ==" % titre + '\n' + message + '\n\nDistribué par [[Utilisateur:NaggoBot|NaggoBot]], le ~~~~~'
+
+				comment = self.resume % {'titre_page': titre_pages_concernees}
+				pywikibot.output(comment)
+				try:
+					page_discussion_demandeur.save(summary=comment, minorEdit=False)
+					# print(page_discussion_demandeur.title(),titre,message)
+				except:
+					pywikibot.output('erreur lors de la publication du message !')
+					continue
 
 				# Enregistrer la requête comme analysée par le bot
 				self.statut_apres[titre_section_SQL] = statut_actuel
