@@ -218,7 +218,7 @@ JOIN (SELECT page_id, page_title FROM categorylinks \
 JOIN page ON page_id=cl_from AND page_namespace IN %(namespaces)s \
 WHERE cl_to='%(category)s' AND page_latest > %(rev_id)i) AS main \
 ON rc_cur_id=page_id \
-WHERE rc_timestamp>%(rev_timestamp)i AND rc_type IN ('mw.edit', 'mw.log', 'mw.new') %(bots_inclus_str)s \
+WHERE rc_timestamp>%(rev_timestamp)i AND rc_source IN ('mw.edit', 'mw.log', 'mw.new') %(bots_inclus_str)s \
 GROUP BY page_id HAVING count_changes >= %(limit)i AND nb_users >= %(minimum_contributeurs)i \
 ORDER BY count_changes DESC;" % {
         'category':page_to_string(self.cat), \
