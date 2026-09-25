@@ -101,6 +101,11 @@ class TreatementBot:
 
 		self.site = pywikibot.Site('fr', 'wikipedia')
 
+		# Par défaut, les requêtes sont archivées sur des pages numérotées
+		# (ex : /Archives3). Certains raccourcis utilisent à la place des
+		# pages annuelles (ex : /Archives/2026).
+		self.yearly_archives = False
+
 		###
 		# Définitions particulières à la page de requêtes
 		###
@@ -196,7 +201,8 @@ class TreatementBot:
 			self.template_prefix = "DIMS"
 			self.template_title = "%s début" % self.template_prefix
 			self.template_end_title = "%s fin" % self.template_prefix
-			self.archivePrefix = "Archives"
+			self.archivePrefix = "Archives/"
+			self.yearly_archives = True # requêtes archivées sur des pages annuelles (ex : /Archives/2026)
 
 		elif raccourci == 'test':
 			self.dict = {
@@ -511,6 +517,12 @@ class TreatementBot:
 		Le bot détecte automatiquement la page d'archives en cours, et crée une nouvelle
 		page dès que le nombre de 250 sections est atteint.
 
+		Si self.yearly_archives est True (ex : DIMS), les requêtes sont au contraire
+		réparties sur des pages d'archives annuelles ('/Archives/<année>', l'année
+		étant celle de la date de la requête), créées si nécessaire avec la boîte
+		d'archives en en-tête. La boîte des archives listant elle-même les années
+		existantes, aucune autre mise à jour n'est nécessaire.
+
 		TODO (D):
 			- mettre à jour la page principale d'archives lorsqu'une nouvelle page
 			  d'archives est créée.
@@ -537,6 +549,7 @@ class TreatementBot:
 			text_to_archive = ""
 			requests_to_archive = []
 			requests_to_delete = []
+			texts_to_archive_par_annee = {} # requêtes à archiver, regroupées par année (mode annuel)
 
 			if not sections:
 				sections = []
@@ -589,6 +602,13 @@ class TreatementBot:
 						text_to_archive += sections[numero_section]
 						requests_to_archive.append(sections[numero_section])
 						text = text.replace(sections[numero_section], '')
+						if self.yearly_archives:
+						# Archivage annuel : la requête rejoindra la page
+						# d'archive de l'année de sa date.
+							annee = date.year
+							if annee not in texts_to_archive_par_annee:
+								texts_to_archive_par_annee[annee] = ""
+							texts_to_archive_par_annee[annee] += sections[numero_section]
 					else:
 						pywikibot.output('=> pas d\'archivage')
 
@@ -616,6 +636,49 @@ class TreatementBot:
 				if not text_to_archive:
 					# Si rien n'est à archiver, on passe directement
 					# au traitement suivant (de l'autre type de requêtes).
+					continue
+
+				if self.yearly_archives:
+				# Archivage sur des pages annuelles : les requêtes sont réparties
+				# sur les pages '/Archives/<année>' correspondant à l'année de leur
+				# date, créées si nécessaire avec la boîte d'archives en en-tête.
+				# La boîte des archives détectant les nouvelles années toute seule,
+				# la page de listing n'a pas à être mise à jour.
+					archives = [] # liste triée des (année, page d'archive, nouveau texte)
+
+					for annee in sorted(texts_to_archive_par_annee):
+						archive_page = pywikibot.Page(self.site, self.main_page.title(as_link = False) + "/%s%i" % (self.archivePrefix, annee))
+
+						if archive_page.exists():
+							pywikibot.output("Année %i déjà amorcée -> page d'archive existante" % annee)
+							new_text = archive_page.get()
+							while new_text[-2:] != '\n\n': # Pour rajouter des sauts de lignes si nécessaire.
+								new_text += '\n'
+							new_text += texts_to_archive_par_annee[annee]
+						else: # Aucune page d'archive n'existe encore pour cette année.
+							pywikibot.output("1ère requête archivée en %i -> création de la page d'archive" % annee)
+							new_text = "{{%s}}\n\n%s" % (self.main_page.title(as_link = False) + "/Archives", texts_to_archive_par_annee[annee])
+
+						archives.append((annee, archive_page, new_text))
+
+					# Mise à jour de la page de classement en cours de traitement
+					# ainsi que des pages d'archives
+					comment = ("Archivage de %i requêtes" % len(requests_to_archive))
+					try:
+						pywikibot.output('******************************************************')
+						self.put_queue.add(page_en_cours, text, comment = (comment + " vers %s" % ", ".join([archive.title(as_link = True) for (annee, archive, nouveau_texte) in archives])))
+
+						for annee, archive, nouveau_texte in archives:
+							self.put_queue.add(archive, nouveau_texte, comment = comment)
+
+						# do it now, otherwise conflicts (eg. if accepted and refused
+						# go to the same place, the second update will override the
+						# first one, see https://fr.wikipedia.org/w/index.php?diff=133677130&diffonly=1)
+						self.put_queue.put_all()
+					except Exception as myexception:
+						pywikibot.output("erreur type 2")
+						#print u'%s %s' % (type(myexception), myexception.args)
+
 					continue
 
 				# Trouver le numéro de la page d'archive en cours
